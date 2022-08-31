@@ -1,0 +1,21 @@
+{
+  "name": "inkpot-powerroll",
+  "title": "Ink Pot - Power Roll",
+  "description": "A module that allows inline rolling of D&D 4e power attacks, damage, and resource spending.",
+  "author": "kyleady",
+  "esmodules": [
+    "module/inkpot.js"
+  ],
+  "styles": [
+		"styles/inkpot.css"
+	],
+  "dependencies": [
+		{
+			"name": "dnd4e",
+			"type": "system"
+		}
+	],
+  "version": "0.1.0",
+  "minimumCoreVersion": "0.8.6",
+  "compatibleCoreVersion": "9"
+}
