@@ -4,21 +4,21 @@ import Item4e from '../../../systems/dnd4e/module/item/entity.js';
 import { MultiAttackRoll } from '../../../systems/dnd4e/module/roll/multi-attack-roll.js';
 export class PowerRoll4e {
   /**
-	 * Replace [[/p ...]] text with Power Roll links <a class="power-roll">. Use
-   * the contents of the text to determine the type of power roll and what 
+   * Replace [[/p ...]] text with Power Roll links <a class="power-roll">. Use
+   * the contents of the text to determine the type of power roll and what
    * overrides the power roll should use.
    *
-   * To expand what is recognized and how it is interpreted, see config.js. 
+   * To expand what is recognized and how it is interpreted, see config.js.
    *
    * Types
-	 * - Attack: Takes the form [[/p <ATTACK> vs <DEF>]]
+   * - Attack: Takes the form [[/p <ATTACK> vs <DEF>]]
    * - Damage: Takes the form [[/p <DAMAGE> <TYPE> damage]]
    * - Resource: Takes the form [[/p <RESOURCE> \d+]]
    * - Unknown: All others
-	 * @param {str} fullTxt Full text matching [[/p ...]]
+   * @param {str} fullTxt Full text matching [[/p ...]]
    * @param {str} withoutBrackets Text, without the enclosing square brackets or '/p '
-	 * @returns {Element} The HTML element that will replace the matched text. 
-	 */
+   * @returns {Element} The HTML element that will replace the matched text.
+   */
   static createPowerRoll(fullTxt, withoutBrackets) {
     const attacks = `(?:${Object.keys(Config.ATTACK).join('|')})`;
     const defs = `(${Object.keys(Config.DEFENSE).join('|')})`;
@@ -27,7 +27,7 @@ export class PowerRoll4e {
     if(attackMatch) {
       return PowerRoll4e._createPowerRollAttack(fullTxt, ...attackMatch);
     }
-    
+
     const damages = `(?:${Object.keys(Config.DAMAGE).join('|')})`;
     const damage_types = `(?:${Config.DAMAGE_TYPES.join('|')})`;
     const damageRgx = new RegExp(`^\\s*((?:\\+|\\-|)\\s*${damages}\\s*(?:(?:\\+|\\-)\\s*${damages}\\s*)*)(?:extra|)\\s*((?:${damage_types}\\s*(?:,|)\\s*(?:and|or|)\\s*)*)\\s*damage\\s*$`, 'i');
@@ -35,39 +35,39 @@ export class PowerRoll4e {
     if(damageMatch) {
         return PowerRoll4e._createPowerRollDamage(fullTxt, ...damageMatch);
     }
-    
+
     const resources = `(${Object.keys(Config.RESOURCE).join('|')})`;
     const resourceRgx = new RegExp(`${resources}\\s*(\\d+)`, 'i');
     const resourceMatch = withoutBrackets.match(resourceRgx);
     if(resourceMatch) {
         return PowerRoll4e._createPowerRollResource(fullTxt, ...resourceMatch);
     }
-    
+
     return PowerRoll4e._createPowerRollUnknown(fullTxt, withoutBrackets);
   }
-  
+
   /**
    * Executed when a Power Roll link is clicked. Given an actor and an item, it
    * will excute the Power Roll's action on the item as if the actor owned it.
-   * 
+   *
    * The Power Roll can specify arbitrary overrides to override any Item data.
-   * 
+   *
    * If the actor is not defined, it will default to user selected actors. If no
    * actors are selected, it will default to the user's default character. If the
    * user does not have a default character, a new blank character is used.
    *
-   * If the item is not defined, it will default to a new blank item. Keep in 
+   * If the item is not defined, it will default to a new blank item. Keep in
    * mind that the Power Roll will often be overriding the item.
-   * 
+   *
    * @param event Click event
-   * @param {Actor4e} actor The actor owning the context of the clicked power roll. 
+   * @param {Actor4e} actor The actor owning the context of the clicked power roll.
    * @param {Item4e} item The item owning the context of the clicked power roll.
    */
   static async onPowerRoll(event, actor, item) {
     const button = event.currentTarget;
     const action = button.dataset.action;
-		button.disabled = true;
-    
+    button.disabled = true;
+
     let actors;
     let emptyActor = false;
     if (!actor) {
@@ -80,56 +80,56 @@ export class PowerRoll4e {
     } else {
       actors = [actor];
     }
-    
+
     let itemData;
     if(!item || item.type != 'power') {
       itemData = {'name': 'PowerRoll', 'type': 'power', 'data': {'weaponType': 'any'}};
     } else {
       itemData = item.data
     }
-    
+
     const overridesStr = button.dataset.overrides;
     if(overridesStr) {
       const overrides = JSON.parse(overridesStr);
       for (let keysStr in overrides) {
-  			const keys = keysStr.split('.');
-  			let ref = itemData.data;
-  			for (let i = 0; i < keys.length; i++) {
-  				const key = keys[i];
-  				if (i < keys.length - 1) {
-  					if (!(key in ref)) ref[key] = {}; 
-  					ref = ref[key];
-  				} else {
-  					ref[key] = overrides[keysStr];
-  				}
-  			}
-  		}
+        const keys = keysStr.split('.');
+        let ref = itemData.data;
+        for (let i = 0; i < keys.length; i++) {
+          const key = keys[i];
+          if (i < keys.length - 1) {
+            if (!(key in ref)) ref[key] = {};
+            ref = ref[key];
+          } else {
+            ref[key] = overrides[keysStr];
+          }
+        }
+      }
     }
-    
-		
-		for (let eachActor of actors) {
+
+
+    for (let eachActor of actors) {
       const tempItem = new Item4e(itemData, {'parent': eachActor});
       if ( action === "attack" ) await tempItem.rollAttack({event});
-  		else if ( action === "damage" ) await tempItem.rollDamage({event});
+      else if ( action === "damage" ) await tempItem.rollDamage({event});
       else if ( action === "resource") PowerRoll4e._spendResource(eachActor, button.dataset, emptyActor);
       else {
         ui.notifications.error("Unrecognized Power Roll format.");
         break;
       }
     }
-    
-		button.disabled = false;
+
+    button.disabled = false;
   }
-  
+
   static _createPowerRollAttack(fullTxt, withoutBrackets, atkTxt, defTxt) {
     const parsedAtk = PowerRoll4e._toParsedData(atkTxt, '(\\+|\\-|)\\s*({})(?=(?:\\+|\\-|\\s|$))', Config.ATTACK);
     let formula = parsedAtk.map(data => `${data.match[1]}${PowerRoll4e._replaceWithMatches(data.data.form, data.match, 2)}`).join('');
     if (parsedAtk.some(data => data.data.type == Config.TYPES.ABILITY)) formula += '+@lvhalf';
     formula += '+@atkMod+@wepAttack';
-    
+
     const parsedDef = PowerRoll4e._toParsedData(defTxt, '{}', Config.DEFENSE);
     const def = parsedDef[0].data.form;
-    
+
     const a = document.createElement('a');
     a.classList.add('power-roll');
     a.title = `${formula} vs. ${def}`;
@@ -141,10 +141,10 @@ export class PowerRoll4e {
     a.innerHTML = `<i class="fas fa-crosshairs"></i> ${withoutBrackets}`;
     return a;
   }
-  
+
   static _createPowerRollDamage(fullTxt, withoutBrackets, dmgTxt, ...matches) {
     const typeTxt = matches.pop();
-    
+
     const parsedDmg = PowerRoll4e._toParsedData(dmgTxt, '(\\+|\\-|)\\s*({})(?=(?:\\+|\\-|\\s|$))', Config.DAMAGE);
     const weapons = parsedDmg
                       .map(data => PowerRoll4e._replaceWithMatches(data.data.baseQuantity, data.match, 2))
@@ -162,12 +162,12 @@ export class PowerRoll4e {
                     .filter(signAndPart => signAndPart[1])
                     .map(signAndPart => signAndPart.join(''))
                     .join('');
-    
+
     const damageType = Config.DAMAGE_TYPES
                         .filter(dmgType => typeTxt.match(new RegExp(dmgType, 'i')))
                         .reduce((obj, dmgType) => ({ ...obj, [dmgType]: true}), {});
     const typesTag = Object.keys(damageType).length ? `[${Object.keys(damageType).join()}]` : '';
-    
+
     const a = document.createElement('a');
     a.classList.add('power-roll');
     a.title = `${formula}${typesTag}`;
@@ -184,12 +184,12 @@ export class PowerRoll4e {
     a.innerHTML = `<i class="fas fa-heart-broken"></i> ${withoutBrackets}`;
     return a;
   }
-  
+
   static _createPowerRollResource(fullTxt, withoutBrackets, resourceTxt, digitTxt) {
     const resourceKey = Object.keys(Config.RESOURCE).filter(rgxKey => resourceTxt.match(new RegExp(`^${rgxKey}$`, 'i')))[0];
     const resource = Config.RESOURCE[resourceKey].name;
     const amount = Number(digitTxt);
-    
+
     const a = document.createElement('a');
     a.classList.add('power-roll');
     a.title = `${resource} -= ${digitTxt}`;
@@ -199,7 +199,7 @@ export class PowerRoll4e {
     a.innerHTML = `<i class="fas fa-arrow-alt-circle-right"></i> ${withoutBrackets}`;
     return a;
   }
-  
+
   static _createPowerRollUnknown(fullTxt, withoutBrackets) {
     const a = document.createElement('a');
     a.classList.add('power-roll');
@@ -207,7 +207,7 @@ export class PowerRoll4e {
     a.innerHTML = `<i class="fas fa-times-circle" style="color:red"></i> ${withoutBrackets}`;
     return a;
   }
-  
+
   static _toParsedData(input, rgx, parsingData) {
     const parsedData = [];
     const anyOption = `(?:${Object.keys(parsingData).join('|')})`;
@@ -226,10 +226,10 @@ export class PowerRoll4e {
         }
       }
     }
-    
+
     return parsedData;
   }
-  
+
   static _replaceWithMatches(txt, match, offset=0) {
     if (!txt) return undefined;
     let output = txt;
@@ -245,8 +245,8 @@ export class PowerRoll4e {
 
     return output;
   }
-  
-  
+
+
   static _spendResource(actor, dataset, emptyActor) {
     if (emptyActor) {
       ui.notifications.error("Please select a token");
@@ -256,7 +256,7 @@ export class PowerRoll4e {
     const actorData = actor.data.data;
     const resourceKey = Object
                           .keys(actor.data.data.resources)
-                          .filter(key => actorData.resources[key].label == dataset.resource)[0];  
+                          .filter(key => actorData.resources[key].label == dataset.resource)[0];
     if (!resourceKey) {
       ui.notifications.error(`${actor.name} does not have a "${dataset.resource}" resource.`);
       return;
@@ -271,13 +271,13 @@ export class PowerRoll4e {
       ui.notifications.error(`${actor.name} has no remaining "${dataset.resource}" charges.`);
       return;
     }
-    
+
     const asRoll = new Roll(`min(@resource[current] - @cost[cost], @max[max])`, {resource: originalValue, cost: cost, max: maxValue}, {});
     asRoll.toMessage({
-  		speaker: ChatMessage.getSpeaker({token: actor}),
-  		flavor: `Resource: ${dataset.resource}`,
-  	});
-    
+      speaker: ChatMessage.getSpeaker({token: actor}),
+      flavor: `Resource: ${dataset.resource}`,
+    });
+
     actor.update({[`data.resources.${resourceKey}.value`]: Math.min(newValue, maxValue)});
   }
 }
