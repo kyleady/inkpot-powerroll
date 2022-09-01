@@ -30,7 +30,7 @@ export class Config {
   static WEAPON = {
     'melee\\s*(?:weapon)?': {'form': 'melee'},
     'ranged\\s*(?:weapon)?': {'form': 'ranged'},
-    '(?:(?:melee|ranged)\\s*(?:weapon|)\\s*(?:or|/|,|)\\s*){2}': {'form': 'meleeRanged'},
+    '(?:(?:(?:melee|ranged)\\s*(?:weapon|)\\s*(?:or|/|,|)\\s*){2}|weapon)': {'form': 'meleeRanged'},
     'imp(?:lement|)': {'form': 'implement'},
     'none': {'form': 'none'},
     '(?:(?:(?:imp(?:lement|)|weapon)\\s*(?:or|/|,|)\\s*){2}|any)': {'form': 'any'}
