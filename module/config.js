@@ -15,17 +15,26 @@ export class Config {
     'int(?:elligence|)': {'form': '@intMod', 'type': PARSING_TYPES.ABILITY},
     'wis(?:dom|)': {'form': '@wisMod', 'type': PARSING_TYPES.ABILITY},
     'cha(?:risma|)': {'form': '@chaMod', 'type': PARSING_TYPES.ABILITY},
-    'level': {'form': '@lv', 'type': PARSING_TYPES.OTHER},
+    '(?:level|lv)': {'form': '@lv', 'type': PARSING_TYPES.OTHER},
     '\\d+': {'form': '$0', 'type': PARSING_TYPES.FLAT},
     '\\d*d\\d+': {'form': '$0', 'type': PARSING_TYPES.FLAT},
   };
 
   static DEFENSE = {
     'ac': {'form': 'ac'},
-    'ref(?:flex|)': {'form': 'ref'},
+    'ref(?:lex|)': {'form': 'ref'},
     'fort(?:itude|)': {'form': 'fort'},
     'wil(?:l|)': {'form': 'wil'},
   };
+
+  static WEAPON = {
+    'melee\\s*(?:weapon)?': {'form': 'melee'},
+    'ranged\\s*(?:weapon)?': {'form': 'ranged'},
+    '(?:(?:melee|ranged)\\s*(?:weapon|)\\s*(?:or|/|,|)\\s*){2}': {'form': 'meleeRanged'},
+    'imp(?:lement|)': {'form': 'implement'},
+    'none': {'form': 'none'},
+    '(?:(?:(?:imp(?:lement|)|weapon)\\s*(?:or|/|,|)\\s*){2}|any)': {'form': 'any'}
+  }
 
   static DAMAGE = {
     'str(?:ength|)\\s*(?:ability|)\\s*(?:mod|)(?:ifier|)': {'form': '@strMod', 'type': PARSING_TYPES.FLAT},
@@ -56,5 +65,5 @@ export class Config {
 
   static RESOURCE = {
     'Augment': {'name': 'Power'}
-  }
+  };
 }

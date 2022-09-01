@@ -22,7 +22,8 @@ export class PowerRoll4e {
   static createPowerRoll(fullTxt, withoutBrackets) {
     const attacks = `(?:${Object.keys(Config.ATTACK).join('|')})`;
     const defs = `(${Object.keys(Config.DEFENSE).join('|')})`;
-    const attackRgx = new RegExp(`^\\s*((?:\\+|\\-|)\\s*${attacks}\\s*(?:(?:\\+|\\-)\\s*${attacks}\\s*)*)vs.?\\s*${defs}\\s*$`, 'i');
+    const weapons = `(\\(\\s*(?:${Object.keys(Config.WEAPON).join('|')})\\s*\\))?`;
+    const attackRgx = new RegExp(`^\\s*((?:\\+|\\-|)\\s*${attacks}\\s*(?:(?:\\+|\\-)\\s*${attacks}\\s*)*)vs.?\\s*${defs}\\s*${weapons}\\s*$`, 'i');
     const attackMatch = withoutBrackets.match(attackRgx);
     if(attackMatch) {
       return PowerRoll4e._createPowerRollAttack(fullTxt, ...attackMatch);
@@ -30,7 +31,7 @@ export class PowerRoll4e {
 
     const damages = `(?:${Object.keys(Config.DAMAGE).join('|')})`;
     const damage_types = `(?:${Config.DAMAGE_TYPES.join('|')})`;
-    const damageRgx = new RegExp(`^\\s*((?:\\+|\\-|)\\s*${damages}\\s*(?:(?:\\+|\\-)\\s*${damages}\\s*)*)(?:extra|)\\s*((?:${damage_types}\\s*(?:,|)\\s*(?:and|or|)\\s*)*)\\s*damage\\s*$`, 'i');
+    const damageRgx = new RegExp(`^\\s*((?:\\+|\\-|)\\s*${damages}\\s*(?:(?:\\+|\\-)\\s*${damages}\\s*)*)(?:extra|)\\s*((?:${damage_types}\\s*(?:,|)\\s*(?:and|or|)\\s*)*)\\s*damage\\s*${weapons}\\s*$`, 'i');
     const damageMatch = withoutBrackets.match(damageRgx);
     if(damageMatch) {
         return PowerRoll4e._createPowerRollDamage(fullTxt, ...damageMatch);
@@ -64,6 +65,7 @@ export class PowerRoll4e {
    * @param {Item4e} item The item owning the context of the clicked power roll.
    */
   static async onPowerRoll(event, actor, item) {
+    event.stopImmediatePropagation();
     const button = event.currentTarget;
     const action = button.dataset.action;
     button.disabled = true;
@@ -72,9 +74,8 @@ export class PowerRoll4e {
     let emptyActor = false;
     if (!actor) {
       actors = canvas.tokens.controlled.map(x => x.actor);
-      if (!actors.length) actors = [game.user.character];
-      if (!actors[0]) {
-        actors = [new Actor4e()];
+      if (!actors.length) {
+        actors = [new Actor4e({'name': 'PowerRoll', 'type': 'NPC'})];
         emptyActor = true;
       }
     } else {
@@ -83,7 +84,7 @@ export class PowerRoll4e {
 
     let itemData;
     if(!item || item.type != 'power') {
-      itemData = {'name': 'PowerRoll', 'type': 'power', 'data': {'weaponType': 'any'}};
+      itemData = {'name': 'PowerRoll', 'type': 'power', 'data': {'weaponType': 'none'}};
     } else {
       itemData = item.data
     }
@@ -121,7 +122,7 @@ export class PowerRoll4e {
     button.disabled = false;
   }
 
-  static _createPowerRollAttack(fullTxt, withoutBrackets, atkTxt, defTxt) {
+  static _createPowerRollAttack(fullTxt, withoutBrackets, atkTxt, defTxt, weaponTxt) {
     const parsedAtk = PowerRoll4e._toParsedData(atkTxt, '(\\+|\\-|)\\s*({})(?=(?:\\+|\\-|\\s|$))', Config.ATTACK);
     let formula = parsedAtk.map(data => `${data.match[1]}${PowerRoll4e._replaceWithMatches(data.data.form, data.match, 2)}`).join('');
     if (parsedAtk.some(data => data.data.type == Config.TYPES.ABILITY)) formula += '+@lvhalf';
@@ -136,13 +137,15 @@ export class PowerRoll4e {
     a.dataset['action'] = 'attack';
     a.dataset['overrides'] = JSON.stringify({
       'attack.formula': formula,
-      'attack.def': def
+      'attack.def': def,
+      ...PowerRoll4e._weaponOverride(weaponTxt)
     });
     a.innerHTML = `<i class="fas fa-crosshairs"></i> ${withoutBrackets}`;
     return a;
   }
 
   static _createPowerRollDamage(fullTxt, withoutBrackets, dmgTxt, ...matches) {
+    const weaponTxt = matches.pop();
     const typeTxt = matches.pop();
 
     const parsedDmg = PowerRoll4e._toParsedData(dmgTxt, '(\\+|\\-|)\\s*({})(?=(?:\\+|\\-|\\s|$))', Config.DAMAGE);
@@ -179,7 +182,8 @@ export class PowerRoll4e {
       'hit.baseQuantity': baseQuantity,
       'hit.formula': formula,
       'miss.formula': '',
-      'hit.critFormula': crit
+      'hit.critFormula': crit,
+      ...PowerRoll4e._weaponOverride(weaponTxt)
     });
     a.innerHTML = `<i class="fas fa-heart-broken"></i> ${withoutBrackets}`;
     return a;
@@ -246,6 +250,13 @@ export class PowerRoll4e {
     return output;
   }
 
+  static _weaponOverride(weaponTxt) {
+    if (!weaponTxt) return {};
+    const weaponParsed = PowerRoll4e._toParsedData(weaponTxt, '\\(\\s*{}\\s*\\)', Config.WEAPON);
+    return {
+      'weaponType': weaponParsed[0].data.form
+    }
+  }
 
   static _spendResource(actor, dataset, emptyActor) {
     if (emptyActor) {
