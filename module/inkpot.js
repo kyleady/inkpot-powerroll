@@ -2,25 +2,10 @@ import Item4e from '../../../systems/dnd4e/module/item/entity.js';
 import { PowerRoll4e } from './powerroll4e.js'
 
 Hooks.once('init', async function() {
-  //Wrap code around TextEditor.enrichHTML to replace power rolls text with power roll links
-  TextEditor.enrichHTML = (function(originalEnrichHTML){
-    function newEnrichHTML(content, {secrets=false, documents=true, links=true, rolls=true, rollData, ...options}={}) {
-      const html = document.createElement("div");
-      html.innerHTML = originalEnrichHTML.call(TextEditor, content, {secrets: secrets, documents: documents, links: links, rolls: rolls, rollData: rollData, ...options});
-      let text = [];
-      if ( options.entities ) documents = options.entities;
-
-      if ( documents ) {
-        text = TextEditor._getTextNodes(html);
-        const rgx = new RegExp(`\\[\\[/p (.+?)\\]\\]`, 'gi');
-        TextEditor._replaceTextContent(text, rgx, PowerRoll4e.createPowerRoll);
-      }
-
-      return html.innerHTML;
-    }
-
-    return newEnrichHTML;
-  })(TextEditor.enrichHTML);
+  CONFIG.TextEditor.enrichers.push({
+    'pattern': new RegExp(`\\[\\[/p (.+?)\\]\\]`, 'gi'),
+    'enricher': (match, options) => new Promise((res, rej) => res(PowerRoll4e.createPowerRoll(...match)))
+  });
 
   //Handle power rolls when clicked inside the chat log.
   Hooks.on("renderChatLog", (app, html, data) => {

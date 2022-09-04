@@ -84,7 +84,7 @@ export class PowerRoll4e {
 
     let itemData;
     if(!item || item.type != 'power') {
-      itemData = {'name': 'PowerRoll', 'type': 'power', 'data': {'weaponType': 'none'}};
+      itemData = {'name': 'PowerRoll', 'type': 'power', 'data': {'weaponType': 'any'}};
     } else {
       itemData = item.data
     }
