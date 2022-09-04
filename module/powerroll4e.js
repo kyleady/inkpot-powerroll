@@ -1,7 +1,4 @@
-import { Actor4e } from '../../../systems/dnd4e/module/actor/actor.js';
 import { Config } from './config.js';
-import Item4e from '../../../systems/dnd4e/module/item/entity.js';
-import { MultiAttackRoll } from '../../../systems/dnd4e/module/roll/multi-attack-roll.js';
 export class PowerRoll4e {
   /**
    * Replace [[/p ...]] text with Power Roll links <a class="power-roll">. Use
@@ -75,7 +72,7 @@ export class PowerRoll4e {
     if (!actor) {
       actors = canvas.tokens.controlled.map(x => x.actor);
       if (!actors.length) {
-        actors = [new Actor4e({'name': 'PowerRoll', 'type': 'NPC'})];
+        actors = [new game.dnd4eBeta.entities.Actor4e({'name': 'PowerRoll', 'type': 'NPC'})];
         emptyActor = true;
       }
     } else {
@@ -109,7 +106,7 @@ export class PowerRoll4e {
 
 
     for (let eachActor of actors) {
-      const tempItem = new Item4e(itemData, {'parent': eachActor});
+      const tempItem = new game.dnd4eBeta.entities.Item4e(itemData, {'parent': eachActor});
       if ( action === "attack" ) await tempItem.rollAttack({event});
       else if ( action === "damage" ) await tempItem.rollDamage({event});
       else if ( action === "resource") PowerRoll4e._spendResource(eachActor, button.dataset, emptyActor);

@@ -1,4 +1,3 @@
-import Item4e from '../../../systems/dnd4e/module/item/entity.js';
 import { PowerRoll4e } from './powerroll4e.js'
 
 Hooks.once('init', async function() {
@@ -12,7 +11,7 @@ Hooks.once('init', async function() {
     html.on('click', 'a.power-roll', event => {
       const button = event.currentTarget;
       const card = button.closest(".chat-card");
-      const actor = card ? Item4e._getChatCardActor(card) : undefined;
+      const actor = card ? game.dnd4eBeta.entities.Item4e._getChatCardActor(card) : undefined;
       const item = actor ? actor.items.get(card.dataset.itemId) : undefined;
       PowerRoll4e.onPowerRoll(event, actor, item);
     });
