@@ -66,4 +66,12 @@ export class Config {
   static RESOURCE = {
     'Augment': {'name': 'Power'}
   };
+
+  static EFFECT = {
+    'save\\s*ends': {'durationType': 'saveEnd'},
+    '(?:until|)\\s*(?:the|)\\s*end\\s*of\\s*(?:the|)\\s*encounter': {'durationType': 'endOfEncounter'},
+    '(?:until|)\\s*(?:the|)\\s*end\\s*of\\s*(?:the|)\\s*day': {'durationType': 'endOfDay'},
+    '(?:until|)\\s*(?:the|)\\s*end\\s*of\\s*(.*)\\s*next\\s*turn': {'durationType': 'endOfUserTurn', 'altDurationType': 'endOfTargetTurn', 'endsOnInit': 'TRUE'},
+    '(?:until|)\\s*(?:the|)\\s*start\\s*of\\s*(.*)\\s*next\\s*turn': {'durationType': 'startOfUserTurn', 'altDurationType': 'startOfTargetTurn', 'endsOnInit': 'TRUE'},
+  };
 }

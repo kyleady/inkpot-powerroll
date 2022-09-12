@@ -13,7 +13,7 @@ Hooks.once('init', async function() {
       const card = button.closest(".chat-card");
       const actor = card ? game.dnd4eBeta.entities.Item4e._getChatCardActor(card) : undefined;
       const item = actor ? actor.items.get(card.dataset.itemId) : undefined;
-      PowerRoll4e.onPowerRoll(event, actor, item);
+      PowerRoll4e.onPowerRoll(event, actor, item, item || actor);
     });
   });
 
@@ -23,7 +23,7 @@ Hooks.once('init', async function() {
       const actor = app.object;
       const itemId = event.currentTarget.closest(".item")?.dataset?.itemId;
       const item = itemId ? actor.items.get(itemId) : undefined;
-      PowerRoll4e.onPowerRoll(event, actor, item);
+      PowerRoll4e.onPowerRoll(event, actor, item, item || actor);
     });
   });
 
@@ -32,14 +32,14 @@ Hooks.once('init', async function() {
     html.on('click', 'a.power-roll', event => {
       const item = app.object;
       const actor = item.parent;
-      PowerRoll4e.onPowerRoll(event, actor, item);
+      PowerRoll4e.onPowerRoll(event, actor, item, item);
     });
   });
 
   //Handle power rolls when clicked inside a Journal.
   Hooks.on("renderJournalSheet", (app, html, data) => {
     html.on('click', 'a.power-roll', event => {
-      PowerRoll4e.onPowerRoll(event);
+      PowerRoll4e.onPowerRoll(event, undefined, undefined, app);
     });
   });
 });

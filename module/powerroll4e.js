@@ -35,10 +35,17 @@ export class PowerRoll4e {
     }
 
     const resources = `(${Object.keys(Config.RESOURCE).join('|')})`;
-    const resourceRgx = new RegExp(`${resources}\\s*(\\d+)`, 'i');
+    const resourceRgx = new RegExp(`^\\s*${resources}\\s*(\\d+)\\s*$`, 'i');
     const resourceMatch = withoutBrackets.match(resourceRgx);
     if(resourceMatch) {
         return PowerRoll4e._createPowerRollResource(fullTxt, ...resourceMatch);
+    }
+
+    const effects = `(?:${Object.keys(Config.EFFECT).join('|')})`;
+    const effectRgx = new RegExp(`^\\s*(${effects})\\s*$`, 'i');
+    const effectMatch = withoutBrackets.match(effectRgx);
+    if(effectMatch) {
+        return PowerRoll4e._createPowerRollEffect(fullTxt, ...effectMatch);
     }
 
     return PowerRoll4e._createPowerRollUnknown(fullTxt, withoutBrackets);
@@ -58,10 +65,11 @@ export class PowerRoll4e {
    * mind that the Power Roll will often be overriding the item.
    *
    * @param event Click event
-   * @param {Actor4e} actor The actor owning the context of the clicked power roll.
-   * @param {Item4e} item The item owning the context of the clicked power roll.
+   * @param {Actor4e} inputActor The actor owning the context of the clicked power roll.
+   * @param {Item4e} inputItem The item owning the context of the clicked power roll.
+   * @param {(Actor4e|Item4e|JournalEntry)} sourceObj The entity that contains the Power Roll.
    */
-  static async onPowerRoll(event, actor, item) {
+  static async onPowerRoll(event, inputActor, inputItem, sourceObj) {
     event.stopImmediatePropagation();
     const button = event.currentTarget;
     const action = button.dataset.action;
@@ -69,21 +77,21 @@ export class PowerRoll4e {
 
     let actors;
     let emptyActor = false;
-    if (!actor) {
+    if (!inputActor) {
       actors = canvas.tokens.controlled.map(x => x.actor);
       if (!actors.length) {
         actors = [new game.dnd4eBeta.entities.Actor4e({'name': 'PowerRoll', 'type': 'NPC'})];
         emptyActor = true;
       }
     } else {
-      actors = [actor];
+      actors = [inputActor];
     }
 
     let itemData;
-    if(!item || item.type != 'power') {
-      itemData = {'name': 'PowerRoll', 'type': 'power', 'data': {'weaponType': 'any'}};
+    if(inputItem?.type != 'power') {
+      itemData = {'name': 'PowerRoll', 'type': 'power', 'system': {'weaponType': 'any'}};
     } else {
-      itemData = item.data
+      itemData = inputItem
     }
 
     const overridesStr = button.dataset.overrides;
@@ -91,7 +99,7 @@ export class PowerRoll4e {
       const overrides = JSON.parse(overridesStr);
       for (let keysStr in overrides) {
         const keys = keysStr.split('.');
-        let ref = itemData.data;
+        let ref = itemData.system;
         for (let i = 0; i < keys.length; i++) {
           const key = keys[i];
           if (i < keys.length - 1) {
@@ -104,12 +112,13 @@ export class PowerRoll4e {
       }
     }
 
-
-    for (let eachActor of actors) {
-      const tempItem = new game.dnd4eBeta.entities.Item4e(itemData, {'parent': eachActor});
-      if ( action === "attack" ) await tempItem.rollAttack({event});
-      else if ( action === "damage" ) await tempItem.rollDamage({event});
-      else if ( action === "resource") PowerRoll4e._spendResource(eachActor, button.dataset, emptyActor);
+    const dataset = button.dataset;
+    for (let actor of actors) {
+      const item = new game.dnd4eBeta.entities.Item4e(itemData, {'parent': actor});
+      if ( action === "attack" ) await item.rollAttack({event});
+      else if ( action === "damage" ) await item.rollDamage({event});
+      else if ( action === "resource" ) PowerRoll4e._spendResource(actor, dataset, emptyActor);
+      else if ( action === "effect" ) PowerRoll4e._addEffect({event, actor, dataset, sourceObj});
       else {
         ui.notifications.error("Unrecognized Power Roll format.");
         break;
@@ -201,6 +210,22 @@ export class PowerRoll4e {
     return a;
   }
 
+  static _createPowerRollEffect(fullTxt, withoutBrackets, effectTxt) {
+    const effectKey = Object.keys(Config.EFFECT).find(rgxKey => effectTxt.match(new RegExp(`^${rgxKey}$`, 'i')));
+    const durationType = Config.EFFECT[effectKey].durationType;
+    const altDurationType = Config.EFFECT[effectKey].altDurationType;
+
+    const a = document.createElement('a');
+    a.classList.add('power-roll');
+    a.title = durationType;
+    a.dataset['action'] = 'effect';
+    a.dataset['durationType'] = durationType;
+    if(altDurationType) a.dataset['altDurationType'] = altDurationType;
+    a.dataset['endsOnInit'] = Config.EFFECT[effectKey].endsOnInit;
+    a.innerHTML = `<i class="fa-solid fa-bolt-lightning"></i> ${withoutBrackets}`;
+    return a;
+  }
+
   static _createPowerRollUnknown(fullTxt, withoutBrackets) {
     const a = document.createElement('a');
     a.classList.add('power-roll');
@@ -261,11 +286,11 @@ export class PowerRoll4e {
       return;
     }
 
-    const actorData = actor.data.data;
+    const actorData = actor.system;
     const resourceKey = Object
-                          .keys(actor.data.data.resources)
+                          .keys(actorData.resources)
                           .filter(key => actorData.resources[key].label == dataset.resource)[0];
-    if (!resourceKey) {
+    if (resourceKey === undefined) {
       ui.notifications.error(`${actor.name} does not have a "${dataset.resource}" resource.`);
       return;
     }
@@ -286,6 +311,67 @@ export class PowerRoll4e {
       flavor: `Resource: ${dataset.resource}`,
     });
 
-    actor.update({[`data.resources.${resourceKey}.value`]: Math.min(newValue, maxValue)});
+    actor.update({[`system.resources.${resourceKey}.value`]: Math.min(newValue, maxValue)});
+  }
+
+  static _addEffect({event, actor, dataset, sourceObj}) {
+    if (game.user.targets.length) {
+      ui.notifications.error("Please target at least one token.");
+    }
+
+    const endsOnTarget = dataset.altDurationType && (event.shiftKey || event.altKey || event.ctrlKey || event.metaKey);
+    game.user.targets.forEach( target => {
+      const combat = target?.combatant?.combat;
+      const startRound = combat?.current?.round;
+      const startTurn = combat?.current?.turn;
+      const startTurnInit = combat?.turns?.[startTurn]?.initiative;
+
+      let durationTurnInit = null;
+      let duration = null;
+      if (dataset.endsOnInit) {
+        if (!endsOnTarget) {
+          durationTurnInit = combat?.turns?.find(turn => turn.actorId == actor?.id)?.initiative;
+        }
+
+        if (endsOnTarget || durationTurnInit === undefined) {
+          durationTurnInit = target?.combatant?.initiative;
+        }
+
+        if (durationTurnInit !== undefined) {
+          duration = startRound;
+          if (durationTurnInit >= startTurnInit) duration++;
+        } else {
+          durationTurnInit = null;
+        }
+      }
+
+      const effectLabel = sourceObj?.name || "PowerRoll";
+      target.actor.createEmbeddedDocuments("ActiveEffect", [{
+        "label": effectLabel,
+        "icon": sourceObj?.img || "icons/svg/aura.svg",
+        "origin": actor?.uuid || target.actor.uuid,
+        "duration.duration": duration,
+        "duration.remaining": duration,
+        "duration.rounds": duration,
+        "duration.startRound": startRound,
+        "duration.startTime": 0,
+        "duration.startTurn": startTurn,
+        "disabled": false,
+        "flags.dnd4e.effectData.durationType": endsOnTarget ? dataset.altDurationType : dataset.durationType,
+        "flags.dnd4e.effectData.startTurnInit": startTurnInit,
+        "flags.dnd4e.effectData.durationTurnInit": durationTurnInit
+      }]);
+
+      const endsOnTargetTxt = endsOnTarget ? " (ends on target turn)" : "";
+      canvas.interface.createScrollingText(target.center, `+ ${effectLabel}${endsOnTargetTxt}`, {
+        anchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
+        direction: CONST.TEXT_ANCHOR_POINTS.TOP,
+        distance: (2 * target.h),
+        fontSize: 28,
+        stroke: 0x000000,
+        strokeThickness: 4,
+        jitter: 0.25
+      });
+    });
   }
 }
