@@ -13,7 +13,20 @@ export class PowerRollDamage4e {
 
     const damageRgx = new RegExp(`^\\s*${damagePart}(?:extra|)\\s*${damageTypePart}\\s*damage\\s*${weaponPart}\\s*$`, 'i');
     const damageMatch = withoutBrackets.match(damageRgx);
-    return damageMatch;
+    if (damageMatch) return damageMatch;
+    const altDamageRgx = new RegExp(`^\\s*(?:extra|)\\s*${damageTypePart}\\s*damage\\s*equal\\s*to\\s*(?:your|)\\s*${damagePart}\\s*${weaponPart}\\s*$`, 'i');
+    const altDamageMatch = withoutBrackets.match(altDamageRgx);
+    if (altDamageMatch) {
+      const altOriginizedLikeDamageMatch = [
+          altDamageMatch[0],
+          ...altDamageMatch.slice(2, -1),
+          altDamageMatch[1],
+          ...altDamageMatch.slice(-1)
+      ];
+      return altOriginizedLikeDamageMatch;
+    } else {
+      return null;
+    }
   }
 
   static _createPowerRollDamage(fullTxt, withoutBrackets, dmgTxt, ...matches) {
