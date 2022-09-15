@@ -23,22 +23,22 @@ export class PowerRoll4e {
   static createPowerRoll(fullTxt, withoutBrackets) {
     const attackMatch = PowerRollAttack4e.getMatch(withoutBrackets);
     if(attackMatch) {
-      return PowerRollAttack4e._createPowerRollAttack(fullTxt, ...attackMatch);
+      return PowerRollAttack4e._createPowerRollAttack(attackMatch[0], attackMatch.groups);
     }
 
     const damageMatch = PowerRollDamage4e.getMatch(withoutBrackets);
     if(damageMatch) {
-        return PowerRollDamage4e._createPowerRollDamage(fullTxt, ...damageMatch);
+        return PowerRollDamage4e._createPowerRollDamage(damageMatch[0], damageMatch.groups);
     }
 
     const resourceMatch = PowerRollResource4e.getMatch(withoutBrackets);
     if(resourceMatch) {
-        return PowerRollResource4e._createPowerRollResource(fullTxt, ...resourceMatch);
+        return PowerRollResource4e._createPowerRollResource(resourceMatch[0], resourceMatch.groups);
     }
 
     const effectMatch = PowerRollEffect4e.getMatch(withoutBrackets);
     if(effectMatch) {
-        return PowerRollEffect4e._createPowerRollEffect(fullTxt, ...effectMatch);
+        return PowerRollEffect4e._createPowerRollEffect(effectMatch[0], effectMatch.groups);
     }
 
     return PowerRoll4e._createPowerRollUnknown(fullTxt, withoutBrackets);
@@ -111,7 +111,7 @@ export class PowerRoll4e {
       if ( action === "attack" ) await item.rollAttack({event});
       else if ( action === "damage" ) await item.rollDamage({event});
       else if ( action === "resource" ) PowerRollResource4e._spendResource(actor, dataset, emptyActor);
-      else if ( action === "effect" ) PowerRollEffect4e._addEffect({event, actor, dataset, sourceObj});
+      else if ( action === "effect" ) PowerRollEffect4e._addEffect({event, actor, dataset, emptyActor, sourceObj});
       else {
         ui.notifications.error("Unrecognized Power Roll format.");
         break;

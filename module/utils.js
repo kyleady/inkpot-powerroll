@@ -1,6 +1,46 @@
 import { Config } from './config.js';
 
 export class PowerRollUtils4e {
+  static formulaRegExp(additionalOptions) {
+    additionalOptions = additionalOptions || {};
+    const jointOptions = {...Config.FORMULA, ...additionalOptions};
+    const form = `${Object.keys(jointOptions).join('|')}`;
+    const sign = `${Object.keys(Config.SIGN).join('|')}`;
+    return `\\s*(?:${sign}|)\\s*(?:${form})\\s*(?:(?:${sign})\\s*(?:${form})\\s*)*`;
+  }
+
+  static parseFormula(formTxt, additionalOptions, additionalKeys) {
+    additionalOptions = additionalOptions || {};
+    additionalKeys = additionalKeys || [];
+    const jointOptions = {...Config.FORMULA, ...additionalOptions};
+    const formKeys = Object.keys(Config.FORMULA).concat(Object.keys(additionalOptions));
+    const sign = `${Object.keys(Config.SIGN).join('|')}`;
+    console
+    const parsedForm = PowerRollUtils4e._toParsedData(formTxt, `(${sign}|)\\s*({})\\s*(?=(?:${sign}|$))`, jointOptions);
+    const [formula, ...additionalFormulas] = ['form'].concat(additionalKeys).map(additionalKey => parsedForm
+      .map(data => {
+        const {'matchKey': signKey} = PowerRollUtils4e.getMatchKey(data.match[1], Config.Sign);
+        const sign = Config.SIGN[signKey]?.form || '';
+        const form = PowerRollUtils4e._replaceWithMatches(data.data[additionalKey] || data.data.form, data.match, 2);
+        return [sign, form];
+      })
+      .filter(signAndForm => signAndForm[1])
+      .map(signAndForm => signAndForm.join(''))
+      .join('')
+    );
+    return {parsedForm, formula, additionalFormulas};
+  }
+
+  static getMatchKey(input, parsingData, rgx) {
+    rgx = rgx || '{}';
+    for (let rgxTxt in parsingData) {
+      const match = input.match(new RegExp('^' + rgx.replace('{}', rgxTxt) + '$', 'i'));
+      if (match) return {match: match, matchKey: rgxTxt};
+    }
+
+    return {};
+  }
+
   static _replaceWithMatches(txt, match, offset=0) {
     if (!txt) return undefined;
     let output = txt;
@@ -26,24 +66,17 @@ export class PowerRollUtils4e {
   }
 
   static _toParsedData(input, rgx, parsingData) {
-    const parsedData = [];
     const anyOption = `(?:${Object.keys(parsingData).join('|')})`;
     const globalRgx = new RegExp(rgx.replace('{}', anyOption), 'gi');
-    const allParts = input.match(globalRgx);
-    for (let part of allParts) {
-      for (let rgxTxt in parsingData) {
-        const match = part.match(new RegExp('^' + rgx.replace('{}', rgxTxt) + '$', 'i'));
-        if (match) {
-          parsedData.push({
-            'match': match,
-            'txt': part,
-            'data': parsingData[rgxTxt]
-          });
-          break;
+    return input
+      .match(globalRgx)
+      .map(part => {
+        const {match, matchKey} = PowerRollUtils4e.getMatchKey(part, parsingData, rgx);
+        return {
+          'match': match,
+          'txt': part,
+          'data': parsingData[matchKey]
         }
-      }
-    }
-
-    return parsedData;
+      });
   }
 }

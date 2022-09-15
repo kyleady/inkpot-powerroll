@@ -2,12 +2,12 @@ import { Config } from '../config.js';
 
 export class PowerRollResource4e {
   static getMatch(withoutBrackets) {
-    const resources = `(${Object.keys(Config.RESOURCE).join('|')})`;
-    const resourceRgx = new RegExp(`^\\s*${resources}\\s*(\\d+)\\s*$`, 'i');
+    const resources = `(?<resourceTxt>${Object.keys(Config.RESOURCE).join('|')})`;
+    const resourceRgx = new RegExp(`^\\s*${resources}\\s*(?<digitTxt>\\d+)\\s*$`, 'i');
     return withoutBrackets.match(resourceRgx);
   }
 
-  static _createPowerRollResource(fullTxt, withoutBrackets, resourceTxt, digitTxt) {
+  static _createPowerRollResource(withoutBrackets, {resourceTxt, digitTxt}) {
     const resourceKey = Object.keys(Config.RESOURCE).filter(rgxKey => resourceTxt.match(new RegExp(`^${rgxKey}$`, 'i')))[0];
     const resource = Config.RESOURCE[resourceKey].name;
     const amount = Number(digitTxt);

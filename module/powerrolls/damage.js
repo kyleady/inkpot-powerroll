@@ -3,54 +3,29 @@ import { PowerRollUtils4e } from '../utils.js';
 
 export class PowerRollDamage4e {
   static getMatch(withoutBrackets) {
-    const damages = `(?:${Object.keys(Config.DAMAGE).join('|')})`;
     const damage_types = `(?:${Config.DAMAGE_TYPES.join('|')})`;
     const weapons = `(?:${Object.keys(Config.WEAPON).join('|')})`;
 
-    const damagePart = `((?:\\+|\\-|)\\s*${damages}\\s*(?:(?:\\+|\\-)\\s*${damages}\\s*)*)`;
-    const damageTypePart = `((?:${damage_types}\\s*(?:,|)\\s*(?:and|or|)\\s*)*)`;
-    const weaponPart = `(\\(\\s*${weapons}\\s*\\))?`;
+    const damagePart = `(?<dmgTxt>${PowerRollUtils4e.formulaRegExp()})`;
+    const damageTypePart = `(?<typeTxt>(?:${damage_types}\\s*(?:,|)\\s*(?:and|or|)\\s*)*)`;
+    const weaponPart = `(?<wpnTxt>\\(\\s*${weapons}\\s*\\)|)`;
 
     const damageRgx = new RegExp(`^\\s*${damagePart}(?:extra|)\\s*${damageTypePart}\\s*damage\\s*${weaponPart}\\s*$`, 'i');
     const damageMatch = withoutBrackets.match(damageRgx);
     if (damageMatch) return damageMatch;
     const altDamageRgx = new RegExp(`^\\s*(?:extra|)\\s*${damageTypePart}\\s*damage\\s*equal\\s*to\\s*(?:your|)\\s*${damagePart}\\s*${weaponPart}\\s*$`, 'i');
-    const altDamageMatch = withoutBrackets.match(altDamageRgx);
-    if (altDamageMatch) {
-      const altOriginizedLikeDamageMatch = [
-          altDamageMatch[0],
-          ...altDamageMatch.slice(2, -1),
-          altDamageMatch[1],
-          ...altDamageMatch.slice(-1)
-      ];
-      return altOriginizedLikeDamageMatch;
-    } else {
-      return null;
-    }
+    return withoutBrackets.match(altDamageRgx);
   }
 
-  static _createPowerRollDamage(fullTxt, withoutBrackets, dmgTxt, ...matches) {
-    const weaponTxt = matches.pop();
-    const typeTxt = matches.pop();
-
-    const parsedDmg = PowerRollUtils4e._toParsedData(dmgTxt, '(\\+|\\-|)\\s*({})(?=(?:\\+|\\-|\\s|$))', Config.DAMAGE);
-    const weapons = parsedDmg
+  static _createPowerRollDamage(withoutBrackets, {dmgTxt, typeTxt, wpnTxt}) {
+    let { parsedForm, formula, additionalFormulas: [crit]} = PowerRollUtils4e.parseFormula(atkTxt, Config.DAMAGE, ['crit']);
+    const weapons = parsedForm
                       .map(data => PowerRollUtils4e._replaceWithMatches(data.data.baseQuantity, data.match, 2))
                       .filter(baseQuantity => baseQuantity);
     if(weapons.length > 1) ui.notifications.warn(`Too many weapons in: ${withoutBrackets}`);
     const baseQuantity = weapons[0] || "";
-
-    const formula = '@dmgMod' + parsedDmg
-                    .map(data => [data.match[1] || '+', PowerRollUtils4e._replaceWithMatches(data.data.form, data.match, 2)])
-                    .filter(signAndPart => signAndPart[1])
-                    .map(signAndPart => signAndPart.join(''))
-                    .join('');
-    const crit = '@dmgMod' + parsedDmg
-                    .map(data => [data.match[1] || '+', PowerRollUtils4e._replaceWithMatches(data.data.type == Config.TYPES.FLAT ? data.data.form : data.data.crit, data.match, 2)])
-                    .filter(signAndPart => signAndPart[1])
-                    .map(signAndPart => signAndPart.join(''))
-                    .join('');
-
+    formula += '+@dmgMod';
+    crit += '+@dmgMod';
     const damageType = Config.DAMAGE_TYPES
                         .filter(dmgType => typeTxt.match(new RegExp(dmgType, 'i')))
                         .reduce((obj, dmgType) => ({ ...obj, [dmgType]: true}), {});
@@ -68,7 +43,7 @@ export class PowerRollDamage4e {
       'hit.formula': formula,
       'miss.formula': '',
       'hit.critFormula': crit,
-      ...PowerRollUtils4e._weaponOverride(weaponTxt)
+      ...PowerRollUtils4e._weaponOverride(wpnTxt)
     });
     a.innerHTML = `<i class="fas fa-heart-broken"></i> ${withoutBrackets}`;
     return a;
