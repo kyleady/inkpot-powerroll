@@ -15,11 +15,10 @@ export class PowerRollUtils4e {
     const jointOptions = {...Config.FORMULA, ...additionalOptions};
     const formKeys = Object.keys(Config.FORMULA).concat(Object.keys(additionalOptions));
     const sign = `${Object.keys(Config.SIGN).join('|')}`;
-    console
     const parsedForm = PowerRollUtils4e._toParsedData(formTxt, `(${sign}|)\\s*({})\\s*(?=(?:${sign}|$))`, jointOptions);
     const [formula, ...additionalFormulas] = ['form'].concat(additionalKeys).map(additionalKey => parsedForm
       .map(data => {
-        const {'matchKey': signKey} = PowerRollUtils4e.getMatchKey(data.match[1], Config.Sign);
+        const {'matchKey': signKey} = PowerRollUtils4e.getMatchKey(data.match[1], Config.SIGN);
         const sign = Config.SIGN[signKey]?.form || '';
         const form = PowerRollUtils4e._replaceWithMatches(data.data[additionalKey] || data.data.form, data.match, 2);
         return [sign, form];
