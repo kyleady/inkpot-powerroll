@@ -6,7 +6,7 @@ export class PowerRollDamage4e {
     const damage_types = `(?:${Config.DAMAGE_TYPES.join('|')})`;
     const weapons = `(?:${Object.keys(Config.WEAPON).join('|')})`;
 
-    const damagePart = `(?<dmgTxt>${PowerRollUtils4e.formulaRegExp()})`;
+    const damagePart = `(?<dmgTxt>${PowerRollUtils4e.formulaRegExp(Config.DAMAGE)})`;
     const damageTypePart = `(?<typeTxt>(?:${damage_types}\\s*(?:,|)\\s*(?:and|or|)\\s*)*)`;
     const weaponPart = `(?<wpnTxt>\\(\\s*${weapons}\\s*\\)|)`;
 
@@ -18,7 +18,7 @@ export class PowerRollDamage4e {
   }
 
   static _createPowerRollDamage(withoutBrackets, {dmgTxt, typeTxt, wpnTxt}) {
-    let { parsedForm, formula, additionalFormulas: [crit]} = PowerRollUtils4e.parseFormula(atkTxt, Config.DAMAGE, ['crit']);
+    let { parsedForm, formula, additionalFormulas: [crit]} = PowerRollUtils4e.parseFormula(dmgTxt, Config.DAMAGE, ['crit']);
     const weapons = parsedForm
                       .map(data => PowerRollUtils4e._replaceWithMatches(data.data.baseQuantity, data.match, 2))
                       .filter(baseQuantity => baseQuantity);

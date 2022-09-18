@@ -1,6 +1,7 @@
 import { PowerRollAttack4e } from './powerrolls/attack.js';
 import { PowerRollDamage4e } from './powerrolls/damage.js';
 import { PowerRollEffect4e } from './powerrolls/effect.js';
+import { PowerRollHealing4e } from './powerrolls/healing.js';
 import { PowerRollResource4e } from './powerrolls/resource.js';
 
 export class PowerRoll4e {
@@ -39,6 +40,11 @@ export class PowerRoll4e {
     const effectMatch = PowerRollEffect4e.getMatch(withoutBrackets);
     if(effectMatch) {
         return PowerRollEffect4e._createPowerRollEffect(effectMatch[0], effectMatch.groups);
+    }
+
+    const healingMatch = PowerRollHealing4e.getMatch(withoutBrackets);
+    if(healingMatch) {
+        return PowerRollHealing4e._createPowerRollHealing(healingMatch[0], healingMatch.groups);
     }
 
     return PowerRoll4e._createPowerRollUnknown(fullTxt, withoutBrackets);
@@ -84,7 +90,7 @@ export class PowerRoll4e {
     if(inputItem?.type != 'power') {
       itemData = {'name': 'PowerRoll', 'type': 'power', 'system': {'weaponType': 'any'}};
     } else {
-      itemData = inputItem
+      itemData = JSON.parse(JSON.stringify(inputItem));
     }
 
     const overridesStr = button.dataset.overrides;
@@ -112,6 +118,7 @@ export class PowerRoll4e {
       else if ( action === "damage" ) await item.rollDamage({event});
       else if ( action === "resource" ) PowerRollResource4e._spendResource(actor, dataset, emptyActor);
       else if ( action === "effect" ) PowerRollEffect4e._addEffect({event, actor, dataset, emptyActor, sourceObj});
+      else if ( action === "healing" ) await item.rollHealing({event});
       else {
         ui.notifications.error("Unrecognized Power Roll format.");
         break;

@@ -48,7 +48,7 @@ export class Config {
     '\\d+': {'form': '$0', 'type': PARSING_TYPES.FLAT},
     '(?:level|lv)': {'form': '@lv', 'type': PARSING_TYPES.FLAT},
     'bloodied\\s*value': {'form': '@details.bloodied', 'type': PARSING_TYPES.FLAT},
-    'healing\\s*surge\\s*value': {'form': '@details.surgeValue', 'type': PARSING_TYPES.FLAT},
+    'your\\s*healing\\s*surge\\s*value': {'form': '@details.surgeValue', 'type': PARSING_TYPES.FLAT},
   };
 
   static DAMAGE = {
@@ -138,5 +138,14 @@ export class Config {
     '(?:torch|lit)': { 'id': 'torch' },
     'unconscious': { 'id': 'unconscious' },
     'weakened': { 'id': 'weakened' }
+  };
+
+  static HEALING_TYPE = {
+    'spend\\s*a\\s*healing\\s*surge': {'healing': 'surge'},
+    '(?:heal\\w*|(?:re|)gains?)': {'healing': ''}
+  };
+
+  static HEALING = {
+    '(?:their|his|her|its|his\\s*or\\s*her|her\\s*or\\s*his)\\s*healing\\s*surge\\s*value': {'healing': 'surgeValue'}
   };
 }

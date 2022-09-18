@@ -10,6 +10,7 @@ export class PowerRollUtils4e {
   }
 
   static parseFormula(formTxt, additionalOptions, additionalKeys) {
+    if(!formTxt) return {'parsedForm': [], 'formula': '', 'additionalFormulas': []};
     additionalOptions = additionalOptions || {};
     additionalKeys = additionalKeys || [];
     const jointOptions = {...Config.FORMULA, ...additionalOptions};
