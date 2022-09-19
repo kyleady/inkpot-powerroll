@@ -5,6 +5,8 @@ const PARSING_TYPES = {
   'WEAPON': 3,
 };
 
+const POSSESSIVE_THIRD = '(?:their|his|her|its|his\\s*or\\s*her|her\\s*or\\s*his)';
+
 export class Config {
   static TYPES = PARSING_TYPES;
 
@@ -31,24 +33,29 @@ export class Config {
     '/': {'form': '/'}
   };
 
+  static MODIFIER = {
+    '(?:one\\s*\\-?\\s*|)half(?:\\*of|)': {'form': 'floor(({})/2)'},
+    '(?:twice|two\\s*times)': {'form': '(2*{})'}
+  }
+
   static FORMULA = {
-    'str(?:ength|)\\s*(?:ability|)\\s*(?:mod|)(?:ifier|)': {'form': '@strMod', 'type': PARSING_TYPES.ABILITY},
-    'con(?:stitution|)\\s*(?:ability|)\\s*(?:mod|)(?:ifier|)': {'form': '@conMod', 'type': PARSING_TYPES.ABILITY},
-    'dex(?:terity|)\\s*(?:ability|)\\s*(?:mod|)(?:ifier|)': {'form': '@dexMod', 'type': PARSING_TYPES.ABILITY},
-    'int(?:elligence|)\\s*(?:ability|)\\s*(?:mod|)(?:ifier|)': {'form': '@intMod', 'type': PARSING_TYPES.ABILITY},
-    'wis(?:dom|)\\s*(?:ability|)\\s*(?:mod|)(?:ifier|)': {'form': '@wisMod', 'type': PARSING_TYPES.ABILITY},
-    'cha(?:risma|)\\s*(?:ability|)\\s*(?:mod|)(?:ifier|)': {'form': '@chaMod', 'type': PARSING_TYPES.ABILITY},
-    'str(?:ength|)\\s*(?:ability|)\\s*score': {'form': '@abilities.str.value', 'type': PARSING_TYPES.FLAT},
-    'con(?:stitution|)\\s*(?:ability|)\\s*score': {'form': '@abilities.con.value', 'type': PARSING_TYPES.FLAT},
-    'dex(?:terity|)\\s*(?:ability|)\\s*score': {'form': '@abilities.dex.value', 'type': PARSING_TYPES.FLAT},
-    'int(?:elligence|)\\s*(?:ability|)\\s*score': {'form': '@abilities.int.value', 'type': PARSING_TYPES.FLAT},
-    'wis(?:dom|)\\s*(?:ability|)\\s*score': {'form': '@abilities.wis.value', 'type': PARSING_TYPES.FLAT},
-    'cha(?:risma|)\\s*(?:ability|)\\s*score': {'form': '@abilities.cha.value', 'type': PARSING_TYPES.FLAT},
+    [`(?:your|${POSSESSIVE_THIRD}|)\\s*str(?:ength|)\\s*(?:ability|)\\s*(?:mod|)(?:ifier|)`]: {'form': '@strMod', 'type': PARSING_TYPES.ABILITY},
+    [`(?:your|${POSSESSIVE_THIRD}|)\\s*con(?:stitution|)\\s*(?:ability|)\\s*(?:mod|)(?:ifier|)`]: {'form': '@conMod', 'type': PARSING_TYPES.ABILITY},
+    [`(?:your|${POSSESSIVE_THIRD}|)\\s*dex(?:terity|)\\s*(?:ability|)\\s*(?:mod|)(?:ifier|)`]: {'form': '@dexMod', 'type': PARSING_TYPES.ABILITY},
+    [`(?:your|${POSSESSIVE_THIRD}|)\\s*int(?:elligence|)\\s*(?:ability|)\\s*(?:mod|)(?:ifier|)`]: {'form': '@intMod', 'type': PARSING_TYPES.ABILITY},
+    [`(?:your|${POSSESSIVE_THIRD}|)\\s*wis(?:dom|)\\s*(?:ability|)\\s*(?:mod|)(?:ifier|)`]: {'form': '@wisMod', 'type': PARSING_TYPES.ABILITY},
+    [`(?:your|${POSSESSIVE_THIRD}|)\\s*cha(?:risma|)\\s*(?:ability|)\\s*(?:mod|)(?:ifier|)`]: {'form': '@chaMod', 'type': PARSING_TYPES.ABILITY},
+    [`(?:your|${POSSESSIVE_THIRD}|)\\s*str(?:ength|)\\s*(?:ability|)\\s*score`]: {'form': '@abilities.str.value', 'type': PARSING_TYPES.FLAT},
+    [`(?:your|${POSSESSIVE_THIRD}|)\\s*con(?:stitution|)\\s*(?:ability|)\\s*score`]: {'form': '@abilities.con.value', 'type': PARSING_TYPES.FLAT},
+    [`(?:your|${POSSESSIVE_THIRD}|)\\s*dex(?:terity|)\\s*(?:ability|)\\s*score`]: {'form': '@abilities.dex.value', 'type': PARSING_TYPES.FLAT},
+    [`(?:your|${POSSESSIVE_THIRD}|)\\s*int(?:elligence|)\\s*(?:ability|)\\s*score`]: {'form': '@abilities.int.value', 'type': PARSING_TYPES.FLAT},
+    [`(?:your|${POSSESSIVE_THIRD}|)\\s*wis(?:dom|)\\s*(?:ability|)\\s*score`]: {'form': '@abilities.wis.value', 'type': PARSING_TYPES.FLAT},
+    [`(?:your|${POSSESSIVE_THIRD}|)\\s*cha(?:risma|)\\s*(?:ability|)\\s*score`]: {'form': '@abilities.cha.value', 'type': PARSING_TYPES.FLAT},
     '(\\d*)d(\\d+)': {'form': '$0', 'crit': '$1*$2', 'type': PARSING_TYPES.OTHER},
     '\\d+': {'form': '$0', 'type': PARSING_TYPES.FLAT},
-    '(?:level|lv)': {'form': '@lv', 'type': PARSING_TYPES.FLAT},
-    'bloodied\\s*value': {'form': '@details.bloodied', 'type': PARSING_TYPES.FLAT},
-    'your\\s*healing\\s*surge\\s*value': {'form': '@details.surgeValue', 'type': PARSING_TYPES.FLAT},
+    [`(?:your|${POSSESSIVE_THIRD}|)\\s*(?:level|lv)`]: {'form': '@lv', 'type': PARSING_TYPES.FLAT},
+    [`(?:your|${POSSESSIVE_THIRD}|)\\s*bloodied\\s*value`]: {'form': '@details.bloodied', 'type': PARSING_TYPES.FLAT},
+    [`(?:your|${POSSESSIVE_THIRD}|)\\s*healing\\s*surge\\s*value`]: {'form': '@details.surgeValue', 'type': PARSING_TYPES.FLAT},
   };
 
   static DAMAGE = {
@@ -146,6 +153,6 @@ export class Config {
   };
 
   static HEALING = {
-    '(?:their|his|her|its|his\\s*or\\s*her|her\\s*or\\s*his)\\s*healing\\s*surge\\s*value': {'healing': 'surgeValue'}
+    [`(?:${POSSESSIVE_THIRD}|as\\s*if\\s*spending\\s*a|as\\s*if\\s*\\S+\\s*spent\\s*a)\\s*healing\\s*surge\\s*(?:value|)`]: {'healing': 'surgeValue'}
   };
 }
