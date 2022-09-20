@@ -31,8 +31,7 @@ export class Config {
     '(?:\\-|—|minus)': {'form': '-'},
     '(?:\\*|times|multiplied\\s*by)': {'form': '*'},
     '(?:/|divided\\s*by)': {'form': '/'},
-    '\\(': {'form': '('},
-    '\\)': {'form': ')'}
+    '\\(': {'form': '('}
   };
 
   static MODIFIER = {
@@ -55,6 +54,7 @@ export class Config {
     [`(?:your|${POSSESSIVE_THIRD}|)\\s*cha(?:risma|)\\s*(?:ability|)\\s*score`]: {'form': '@abilities.cha.value', 'type': PARSING_TYPES.FLAT},
     '(\\d*)d(\\d+)': {'form': '$0', 'crit': '$1*$2', 'type': PARSING_TYPES.OTHER},
     '\\d+': {'form': '$0', 'type': PARSING_TYPES.FLAT},
+    '@[a-z\\.]+': {'form': '$0', 'type': PARSING_TYPES.FLAT},
     [`(?:your|${POSSESSIVE_THIRD}|)\\s*(?:level|lv)`]: {'form': '@lv', 'type': PARSING_TYPES.FLAT},
     [`(?:your|${POSSESSIVE_THIRD}|)\\s*bloodied\\s*value`]: {'form': '@details.bloodied', 'type': PARSING_TYPES.FLAT},
     [`(?:your|${POSSESSIVE_THIRD}|)\\s*healing\\s*surge\\s*value`]: {'form': '@details.surgeValue', 'type': PARSING_TYPES.FLAT},

@@ -5,9 +5,9 @@ export class PowerRollUtils4e {
     additionalOptions = additionalOptions || {};
     const jointOptions = {...Config.FORMULA, ...additionalOptions};
     const form = `${Object.keys(jointOptions).join('|')}`;
-    const sign = `${Object.keys(Config.SIGN).join('|')}`;
+    const sign = `(?:${Object.keys(Config.SIGN).join('|')})`;
     const modifier = `${Object.keys(Config.MODIFIER).join('|')}|`;
-    return `\\s*(?:${sign}|)\\s*(?:${modifier})\\s*(?:${form})\\s*(?:(?:${sign})\\s*(?:${modifier})\\s*(?:${form})\\s*)*`;
+    return `(?:\\s*${sign}\\s*)*\\s*(?:${modifier})\\s*(?:${form})\\s*\\)?\\s*(?:(?:\\s*${sign}\\s*)+\\s*(?:${modifier})\\s*(?:${form})\\s*[\\s\\)]*\\s*)*`;
   }
 
   static parseFormula(formTxt, additionalOptions, additionalKeys) {
@@ -16,17 +16,18 @@ export class PowerRollUtils4e {
     additionalKeys = additionalKeys || [];
     const jointOptions = {...additionalOptions, ...Config.FORMULA};
     const formKeys = Object.keys(additionalOptions).concat(Object.keys(Config.FORMULA));
-    const sign = `${Object.keys(Config.SIGN).join('|')}`;
+    const sign = `(?:${Object.keys(Config.SIGN).join('|')})`;
     const modifier = `${Object.keys(Config.MODIFIER).join('|')}|`;
-    const parsedForm = PowerRollUtils4e._toParsedData(formTxt, `(${sign}|)\\s*(${modifier})\\s*({})\\s*(?=(?:${sign}|$))`, jointOptions);
+    const parsedForm = PowerRollUtils4e._toParsedData(formTxt, `((?:\\s*${sign}\\s*)*)\\s*(${modifier})\\s*({})\\s*([\\s\\)]*)\\s*(?=(?:${sign}|$))`, jointOptions);
     const [formula, ...additionalFormulas] = ['form'].concat(additionalKeys).map(additionalKey => parsedForm
       .map(data => {
-        const {'matchKey': signKey} = PowerRollUtils4e.getMatchKey(data.match[1], Config.SIGN);
+        const parsedSigns = data.match[1] ? PowerRollUtils4e._toParsedData(data.match[1], '{}', Config.SIGN) : [];
         const {'matchKey': modifierKey} = PowerRollUtils4e.getMatchKey(data.match[2], Config.MODIFIER);
-        const sign = Config.SIGN[signKey]?.form || '';
+        const sign = parsedSigns.map(signData => signData.data.form).join('');
         const modifier = Config.MODIFIER[modifierKey]?.form || '{}';
         const form = PowerRollUtils4e._replaceWithMatches(data.data[additionalKey] || data.data.form, data.match, 3);
-        return [sign, form ? modifier.replace('{}', form) : undefined];
+        const endingParens = data.match.slice(-1)[0]?.replace(' ', '') || '';
+        return [sign, form ? modifier.replace('{}', form) : undefined, endingParens];
       })
       .filter(signAndForm => signAndForm[1])
       .map(signAndForm => signAndForm.join(''))
