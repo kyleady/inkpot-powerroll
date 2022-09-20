@@ -8,7 +8,7 @@ export class PowerRollEffect4e {
     return withoutBrackets.match(effectRgx);
   }
 
-  static _createPowerRollEffect(withoutBrackets, {commonEffectTxt, effectTxt, commonEffectAloneTxt}) {
+  static _createPowerRollEffect(withoutBrackets, {commonEffectTxt, effectTxt, commonEffectAloneTxt}, replacementTxt) {
     let durationType = 'endOfEncounter';
     let altDurationType;
     let endsOnInit;
@@ -37,7 +37,7 @@ export class PowerRollEffect4e {
     if(statusId) a.dataset['statusId'] = statusId;
 
     a.innerHTML = `<i class="fa-${statusId ? 'solid' : 'regular'} fa-bolt-lightning"></i>`;
-    a.appendChild(document.createTextNode(withoutBrackets));
+    a.appendChild(document.createTextNode(replacementTxt || withoutBrackets));
     return a;
   }
 

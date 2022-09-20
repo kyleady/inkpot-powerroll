@@ -7,7 +7,7 @@ export class PowerRollResource4e {
     return withoutBrackets.match(resourceRgx);
   }
 
-  static _createPowerRollResource(withoutBrackets, {resourceTxt, digitTxt}) {
+  static _createPowerRollResource(withoutBrackets, {resourceTxt, digitTxt}, replacementTxt) {
     const resourceKey = Object.keys(Config.RESOURCE).filter(rgxKey => resourceTxt.match(new RegExp(`^${rgxKey}$`, 'i')))[0];
     const resource = Config.RESOURCE[resourceKey].name;
     const amount = Number(digitTxt);
@@ -19,7 +19,7 @@ export class PowerRollResource4e {
     a.dataset['resource'] = resource;
     a.dataset['amount'] = amount;
     a.innerHTML = '<i class="fas fa-arrow-alt-circle-right"></i>';
-    a.appendChild(document.createTextNode(withoutBrackets));
+    a.appendChild(document.createTextNode(replacementTxt || withoutBrackets));
     return a;
   }
 

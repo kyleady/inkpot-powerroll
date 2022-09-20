@@ -19,7 +19,7 @@ export class PowerRollHealing4e {
     return withoutBrackets.match(surgeRgx);
   }
 
-  static _createPowerRollHealing(withoutBrackets, {typeTxt, formTxt}) {
+  static _createPowerRollHealing(withoutBrackets, {typeTxt, formTxt}, replacementTxt) {
     let { parsedForm, formula} = PowerRollUtils4e.parseFormula(formTxt, Config.HEALING);
     const typeKey = Object.keys(Config.HEALING_TYPE).find(typeRgx => typeTxt.match(new RegExp(typeRgx, 'i')));
     const healType = Config.HEALING_TYPE[typeKey].healing;
@@ -36,7 +36,7 @@ export class PowerRollHealing4e {
       'hit.isHealing': true
     });
     a.innerHTML = '<i class="fa fa-heart"></i>';
-    a.appendChild(document.createTextNode(withoutBrackets));
+    a.appendChild(document.createTextNode(replacementTxt || withoutBrackets));
     return a;
   }
 }

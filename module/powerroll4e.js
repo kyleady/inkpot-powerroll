@@ -21,30 +21,30 @@ export class PowerRoll4e {
    * @param {str} withoutBrackets Text, without the enclosing square brackets or '/p '
    * @returns {Element} The HTML element that will replace the matched text.
    */
-  static createPowerRoll(fullTxt, withoutBrackets) {
+  static createPowerRoll(fullTxt, withoutBrackets, replacementTxt) {
     const attackMatch = PowerRollAttack4e.getMatch(withoutBrackets);
     if(attackMatch) {
-      return PowerRollAttack4e._createPowerRollAttack(attackMatch[0], attackMatch.groups);
+      return PowerRollAttack4e._createPowerRollAttack(attackMatch[0], attackMatch.groups, replacementTxt);
     }
 
     const damageMatch = PowerRollDamage4e.getMatch(withoutBrackets);
     if(damageMatch) {
-        return PowerRollDamage4e._createPowerRollDamage(damageMatch[0], damageMatch.groups);
+        return PowerRollDamage4e._createPowerRollDamage(damageMatch[0], damageMatch.groups, replacementTxt);
     }
 
     const resourceMatch = PowerRollResource4e.getMatch(withoutBrackets);
     if(resourceMatch) {
-        return PowerRollResource4e._createPowerRollResource(resourceMatch[0], resourceMatch.groups);
+        return PowerRollResource4e._createPowerRollResource(resourceMatch[0], resourceMatch.groups, replacementTxt);
     }
 
     const effectMatch = PowerRollEffect4e.getMatch(withoutBrackets);
     if(effectMatch) {
-        return PowerRollEffect4e._createPowerRollEffect(effectMatch[0], effectMatch.groups);
+        return PowerRollEffect4e._createPowerRollEffect(effectMatch[0], effectMatch.groups, replacementTxt);
     }
 
     const healingMatch = PowerRollHealing4e.getMatch(withoutBrackets);
     if(healingMatch) {
-        return PowerRollHealing4e._createPowerRollHealing(healingMatch[0], healingMatch.groups);
+        return PowerRollHealing4e._createPowerRollHealing(healingMatch[0], healingMatch.groups, replacementTxt);
     }
 
     return PowerRoll4e._createPowerRollUnknown(fullTxt, withoutBrackets);

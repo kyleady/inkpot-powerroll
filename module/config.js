@@ -31,7 +31,9 @@ export class Config {
     '(?:\\-|—|minus)': {'form': '-'},
     '(?:\\*|times|multiplied\\s*by)': {'form': '*'},
     '(?:/|divided\\s*by)': {'form': '/'},
-    '\\(': {'form': '('}
+    '\\(': {'form': '('},
+    '\\{': {'form': '{'},
+    '(?:abs|acos|acosh|asin|asinh|atan|atanh|atan2|cbrt|ceil|clz32|cos|cosh|exp|expm1|floor|fround|hypot|imul|log|log1p|log10|log2|max|min|pow|round|sign|sin|sinh|sqrt|tan|tanh|trunc)\\(': {'form':'$0'}
   };
 
   static MODIFIER = {
@@ -52,13 +54,21 @@ export class Config {
     [`(?:your|${POSSESSIVE_THIRD}|)\\s*int(?:elligence|)\\s*(?:ability|)\\s*score`]: {'form': '@abilities.int.value', 'type': PARSING_TYPES.FLAT},
     [`(?:your|${POSSESSIVE_THIRD}|)\\s*wis(?:dom|)\\s*(?:ability|)\\s*score`]: {'form': '@abilities.wis.value', 'type': PARSING_TYPES.FLAT},
     [`(?:your|${POSSESSIVE_THIRD}|)\\s*cha(?:risma|)\\s*(?:ability|)\\s*score`]: {'form': '@abilities.cha.value', 'type': PARSING_TYPES.FLAT},
-    '(\\d*)d(\\d+)': {'form': '$0', 'crit': '$1*$2', 'type': PARSING_TYPES.OTHER},
     '\\d+': {'form': '$0', 'type': PARSING_TYPES.FLAT},
     '@[a-z\\.]+': {'form': '$0', 'type': PARSING_TYPES.FLAT},
     [`(?:your|${POSSESSIVE_THIRD}|)\\s*(?:level|lv)`]: {'form': '@lv', 'type': PARSING_TYPES.FLAT},
     [`(?:your|${POSSESSIVE_THIRD}|)\\s*bloodied\\s*value`]: {'form': '@details.bloodied', 'type': PARSING_TYPES.FLAT},
     [`(?:your|${POSSESSIVE_THIRD}|)\\s*healing\\s*surge\\s*value`]: {'form': '@details.surgeValue', 'type': PARSING_TYPES.FLAT},
+    'random\\(\\s*\\)': {'form': 'random()', 'crit': '1', 'type': PARSING_TYPES.OTHER}
   };
+
+  static SUFFIX = {
+    '\\)':{'form': ')'},
+    '\\}':{'form': '}'},
+    '\\[[^\\]]+\\]':{'form': '$0'},
+    'd': {'form': 'd', 'crit': '*'},
+    ',': {'form': ','}
+  }
 
   static DAMAGE = {
     '(\\d+)\\s*\\[\\s*W\\s*\\]': {'form': '@powBase', 'crit': '@powMax', 'baseQuantity': '$1', 'type': PARSING_TYPES.WEAPON},

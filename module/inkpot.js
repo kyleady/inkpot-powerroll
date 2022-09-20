@@ -2,7 +2,7 @@ import { PowerRoll4e } from './powerroll4e.js'
 
 Hooks.once('init', async function() {
   CONFIG.TextEditor.enrichers.push({
-    'pattern': new RegExp(`\\[\\[/p (.+?)\\]\\]`, 'gi'),
+    'pattern': new RegExp(`\\[\\[/p (.+?)\\]\\](?:\\{([^\\}]+)\\}|)`, 'gi'),
     'enricher': (match, options) => new Promise((res, rej) => res(PowerRoll4e.createPowerRoll(...match)))
   });
 

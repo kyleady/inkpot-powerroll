@@ -17,7 +17,7 @@ export class PowerRollDamage4e {
     return withoutBrackets.match(altDamageRgx);
   }
 
-  static _createPowerRollDamage(withoutBrackets, {dmgTxt, typeTxt, wpnTxt}) {
+  static _createPowerRollDamage(withoutBrackets, {dmgTxt, typeTxt, wpnTxt}, replacementTxt) {
     let { parsedForm, formula, additionalFormulas: [crit]} = PowerRollUtils4e.parseFormula(dmgTxt, Config.DAMAGE, ['crit']);
     const weapons = parsedForm
                       .map(data => PowerRollUtils4e._replaceWithMatches(data.data.baseQuantity, data.match, 2))
@@ -46,7 +46,7 @@ export class PowerRollDamage4e {
       ...PowerRollUtils4e._weaponOverride(wpnTxt)
     });
     a.innerHTML = '<i class="fas fa-heart-broken"></i>';
-    a.appendChild(document.createTextNode(withoutBrackets));
+    a.appendChild(document.createTextNode(replacementTxt || withoutBrackets));
     return a;
   }
 }

@@ -10,7 +10,7 @@ export class PowerRollAttack4e {
     return withoutBrackets.match(attackRgx);
   }
 
-  static _createPowerRollAttack(withoutBrackets, {atkTxt, defTxt, wpnTxt}) {
+  static _createPowerRollAttack(withoutBrackets, {atkTxt, defTxt, wpnTxt}, replacementTxt) {
     let { parsedForm, formula } = PowerRollUtils4e.parseFormula(atkTxt);
     if (parsedForm.some(data => data.data.type == Config.TYPES.ABILITY)) formula += '+@lvhalf';
     formula += '+@atkMod+@wepAttack';
@@ -28,7 +28,7 @@ export class PowerRollAttack4e {
       ...PowerRollUtils4e._weaponOverride(wpnTxt)
     });
     a.innerHTML = '<i class="fas fa-crosshairs"></i>';
-    a.appendChild(document.createTextNode(withoutBrackets));
+    a.appendChild(document.createTextNode(replacementTxt || withoutBrackets));
     return a;
   }
 }
