@@ -36,7 +36,8 @@ export class PowerRollEffect4e {
     if(endsOnInit) a.dataset['endsOnInit'] = endsOnInit;
     if(statusId) a.dataset['statusId'] = statusId;
 
-    a.innerHTML = `<i class="fa-${statusId ? 'solid' : 'regular'} fa-bolt-lightning"></i> ${withoutBrackets}`;
+    a.innerHTML = `<i class="fa-${statusId ? 'solid' : 'regular'} fa-bolt-lightning"></i>`;
+    a.appendChild(document.createTextNode(withoutBrackets));
     return a;
   }
 

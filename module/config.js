@@ -27,10 +27,12 @@ export class Config {
   }
 
   static SIGN = {
-    '\\+': {'form': '+'},
-    '(?:\\-|—)': {'form': '-'},
-    '\\*': {'form': '*'},
-    '/': {'form': '/'}
+    '(?:\\+|plus)': {'form': '+'},
+    '(?:\\-|—|minus)': {'form': '-'},
+    '(?:\\*|times|multiplied\\s*by)': {'form': '*'},
+    '(?:/|divided\\s*by)': {'form': '/'},
+    '\\(': {'form': '('},
+    '\\)': {'form': ')'}
   };
 
   static MODIFIER = {
@@ -135,7 +137,7 @@ export class Config {
     'mounted': { 'id': 'mounted' },
     'petrified': { 'id': 'petrified' },
     'prone': { 'id': 'prone' },
-    'removed\\s+from\\+play': { 'id': 'removed' },
+    'removed\\s+from\\s+play': { 'id': 'removed' },
     'restrained': { 'id': 'restrained' },
     '(?:sleeping|asleep)': { 'id': 'sleeping' },
     'slowed': { 'id': 'slowed' },

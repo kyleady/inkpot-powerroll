@@ -27,7 +27,8 @@ export class PowerRollAttack4e {
       'attack.def': def,
       ...PowerRollUtils4e._weaponOverride(wpnTxt)
     });
-    a.innerHTML = `<i class="fas fa-crosshairs"></i> ${withoutBrackets}`;
+    a.innerHTML = '<i class="fas fa-crosshairs"></i>';
+    a.appendChild(document.createTextNode(withoutBrackets));
     return a;
   }
 }

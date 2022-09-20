@@ -45,7 +45,8 @@ export class PowerRollDamage4e {
       'hit.critFormula': crit,
       ...PowerRollUtils4e._weaponOverride(wpnTxt)
     });
-    a.innerHTML = `<i class="fas fa-heart-broken"></i> ${withoutBrackets}`;
+    a.innerHTML = '<i class="fas fa-heart-broken"></i>';
+    a.appendChild(document.createTextNode(withoutBrackets));
     return a;
   }
 }

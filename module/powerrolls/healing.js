@@ -35,7 +35,8 @@ export class PowerRollHealing4e {
       'hit.healSurge': healType || surgeValue || '',
       'hit.isHealing': true
     });
-    a.innerHTML = `<i class="fa fa-heart"></i> ${withoutBrackets}`;
+    a.innerHTML = '<i class="fa fa-heart"></i>';
+    a.appendChild(document.createTextNode(withoutBrackets));
     return a;
   }
 }

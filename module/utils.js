@@ -63,7 +63,7 @@ export class PowerRollUtils4e {
 
   static _weaponOverride(weaponTxt) {
     if (!weaponTxt) return {};
-    const weaponParsed = PowerRoll4e._toParsedData(weaponTxt, '\\(\\s*{}\\s*\\)', Config.WEAPON);
+    const weaponParsed = PowerRollUtils4e._toParsedData(weaponTxt, '\\(\\s*{}\\s*\\)', Config.WEAPON);
     return {
       'weaponType': weaponParsed[0].data.form
     }

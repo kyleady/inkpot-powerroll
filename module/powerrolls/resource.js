@@ -18,7 +18,8 @@ export class PowerRollResource4e {
     a.dataset['action'] = 'resource';
     a.dataset['resource'] = resource;
     a.dataset['amount'] = amount;
-    a.innerHTML = `<i class="fas fa-arrow-alt-circle-right"></i> ${withoutBrackets}`;
+    a.innerHTML = '<i class="fas fa-arrow-alt-circle-right"></i>';
+    a.appendChild(document.createTextNode(withoutBrackets));
     return a;
   }
 
