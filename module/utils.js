@@ -9,7 +9,7 @@ export class PowerRollUtils4e {
     const modifier = `(?:${Object.keys(Config.MODIFIER).join('|')}|)`;
     const suffix = `(?:${Object.keys(Config.SUFFIX).join('|')})`;
     const part = `(?:\\s*${sign}\\s*)*\\s*${modifier}\\s*${form}(?:\\s*${suffix}\\s*)*`;
-    return `${part}(?:${sign}${part})*\\s*`;
+    return `${part}(?:\\s*${sign}${part})*\\s*`;
   }
 
   static parseFormula(formTxt, additionalOptions, additionalKeys) {

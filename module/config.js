@@ -33,7 +33,11 @@ export class Config {
     '(?:/|divided\\s*by)': {'form': '/'},
     '\\(': {'form': '('},
     '\\{': {'form': '{'},
-    '(?:abs|acos|acosh|asin|asinh|atan|atanh|atan2|cbrt|ceil|clz32|cos|cosh|exp|expm1|floor|fround|hypot|imul|log|log1p|log10|log2|max|min|pow|round|sign|sin|sinh|sqrt|tan|tanh|trunc)\\(': {'form':'$0'}
+    '(?:abs|acos|acosh|asin|asinh|atan|atanh|atan2|cbrt|ceil|clz32|cos|cosh|exp|expm1|floor|fround|hypot|imul|log|log1p|log10|log2|max|min|pow|round|sign|sin|sinh|sqrt|tan|tanh|trunc)\\(': {'form':'$0'},
+    '(?:kl|kh|dh|dl)': {'form': '$0'},
+    '(?:ms|cs)(?:>|<|)=?': {'form': '$0'},
+    'd': {'form': 'd', 'crit': '*'},
+    ',': {'form': ','}
   };
 
   static MODIFIER = {
@@ -65,9 +69,7 @@ export class Config {
   static SUFFIX = {
     '\\)':{'form': ')'},
     '\\}':{'form': '}'},
-    '\\[[^\\]]+\\]':{'form': '$0'},
-    'd': {'form': 'd', 'crit': '*'},
-    ',': {'form': ','}
+    '\\[[^\\]]+\\]':{'form': '$0'}
   }
 
   static DAMAGE = {
