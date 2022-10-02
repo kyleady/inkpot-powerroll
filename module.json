@@ -7,6 +7,17 @@
   "esmodules": [
     "module/inkpot.js"
   ],
+  "packs": [
+    {
+      "label": "Inkpot - Power Rolls",
+      "type": "JournalEntry",
+      "name": "inkpot-powerroll",
+      "path": "packs/inkpot-powerroll.db",
+      "system": "dnd4e",
+      "private": false,
+      "flags": {}
+    }
+  ],
   "styles": [
     "styles/inkpot.css"
   ],
