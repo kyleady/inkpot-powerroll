@@ -1,5 +1,5 @@
-# Inkpot - Power Roll for FoundryVTT
-A module that allows inline clickable links for rolling of D&D 4e power attacks, damage, healing, effects, and resource spending.
+# Inkpot - Power Roll
+A FoundryVTT module that allows inline clickable links for rolling of D&D 4e power attacks, damage, healing, effects, and resource spending.
 
 To create a Power Roll put recognized text within [[/p \<TEXT\>]]
 
