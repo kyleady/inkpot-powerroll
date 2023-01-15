@@ -42,4 +42,12 @@ Hooks.once('init', async function() {
       PowerRoll4e.onPowerRoll(event, undefined, undefined, app);
     });
   });
+
+  //Handle powerroll effect update requests that are being piped to a specific GM
+  Hooks.on("updateActor", (entity, data, options, userId) => {
+    PowerRoll4e.addEffectAsGM(entity, data, options, userId);
+  });
 });
+
+//remove any unprocessed effect requests
+Hooks.on("ready", () => PowerRoll4e.cleanAddEffectRequests());

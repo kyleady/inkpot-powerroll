@@ -128,6 +128,40 @@ export class PowerRoll4e {
     button.disabled = false;
   }
 
+  /**
+   * This function is the current workaround due to users being unable to edit
+   * tokens they do not control.
+   *
+   * This function is called when the "updateActor" Hook is triggered. It
+   * expects the flag inkpot-powerroll to be set on a token the original user
+   * can control.
+   *
+   * The requested GM will add the effectDefinition document to the requested
+   * token.
+   * @param entity provided by updateActor Hook
+   * @param data.flags.inkpot-powerroll.UNIX_TIMESTAMP.gmId The id of the GM
+   *   that will add the effect.
+   * @param data.flags.inkpot-powerroll.UNIX_TIMESTAMP.sceneId The id of the
+   *   scene that the token is in.
+   * @param data.flags.inkpot-powerroll.UNIX_TIMESTAMP.tokenId The id of the
+   *   token that will gain the effect.
+   * @param data.flags.inkpot-powerroll.UNIX_TIMESTAMP.effectDefinition The
+   *   effect document that will be added to the token.
+   * @param options provided by updateActor Hook
+   * @param userId provided by updateActor Hook
+   */
+  static addEffectAsGM(entity, data, options, userId) {
+    PowerRollEffect4e.addEffectAsGM(entity, data, options, userId);
+  }
+
+  /**
+   * This function removes any lingering inkpot-powerroll flags that were not
+   * successfully processed.
+   */
+  static cleanAddEffectRequests() {
+    PowerRollEffect4e.cleanAddEffectRequests();
+  }
+
   static _createPowerRollUnknown(fullTxt, withoutBrackets) {
     const a = document.createElement('a');
     a.classList.add('power-roll');
