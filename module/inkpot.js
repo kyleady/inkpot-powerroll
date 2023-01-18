@@ -44,10 +44,5 @@ Hooks.once('init', async function() {
   });
 
   //Handle powerroll effect update requests that are being piped to a specific GM
-  Hooks.on("updateActor", (entity, data, options, userId) => {
-    PowerRoll4e.addEffectAsGM(entity, data, options, userId);
-  });
+  game.socket.on('module.inkpot-powerroll', PowerRoll4e.addEffectAsGM);
 });
-
-//remove any unprocessed effect requests
-Hooks.on("ready", () => PowerRoll4e.cleanAddEffectRequests());
