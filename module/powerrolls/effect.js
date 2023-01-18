@@ -93,8 +93,17 @@ export class PowerRollEffect4e {
       };
 
       if(dataset.statusId) {
-        const commonEffect = CONFIG.statusEffects.find(e => e.id === dataset.statusId);
-        effectDefinition["flags.core.statusId"] = dataset.statusId;
+        const commonEffect = (
+          CONFIG.statusEffects.find(e => e.id.split('.')[1] === dataset.statusId)
+          ||
+          CONFIG.statusEffects.find(e => e.id === dataset.statusId)
+        );
+        if ("flags" in commonEffect) {
+          Object.entries(commonEffect.flags).forEach(([k, v]) => effectDefinition['flags.' + k] = v);
+        } else {
+          effectDefinition["flags.core.statusId"] = dataset.statusId;
+        }
+
         effectDefinition['icon'] = commonEffect.icon;
         effectDefinition['label'] = game.i18n.localize(commonEffect.label);
       } else {
@@ -114,21 +123,14 @@ export class PowerRollEffect4e {
         //directly update the effects if the current user owns the token
         target.actor.createEmbeddedDocuments("ActiveEffect", [effectDefinition]);
       } else {
-        // FoundryVTT does not allow users to edit tokens they do not own
-        // The following is a workaround and expects the user to have a default token and for the GM to be online
-        const defaultCharacter = game.user.character;
-        if (!defaultCharacter) {
-          ui.notifications.error("Error: You must set a default character.");
-          return;
-        }
-
+        // Request an active GM to perform the update
         const activeGMs = game.users.filter(u => u.isGM && u.active);
         if (activeGMs.length == 0) {
           ui.notifications.warn("Warning: Other tokens cannot be updated while the GM is away.");
           return;
         }
 
-        defaultCharacter.setFlag('inkpot-powerroll', Date.now(), {
+        game.socket.emit('module.inkpot-powerroll', {
           gmId: activeGMs[0].id,
           effectDefinition,
           tokenId: target.id,
@@ -138,22 +140,9 @@ export class PowerRollEffect4e {
     });
   }
 
-  static addEffectAsGM(entity, data, options, userId) {
-    const flagData = data?.flags?.['inkpot-powerroll'];
-    if(flagData === undefined) return;
-    const effectRequests = Object.entries(flagData).filter(([k, v]) => !isNaN(k));
-    if (effectRequests.length == 0) return;
-    const gmId = effectRequests.map(([k, v]) => v.gmId)[0];
-    if(game.user.id != gmId) return;
-    effectRequests.forEach(([k, v]) => game.scenes.get(v.sceneId).tokens.get(v.tokenId).actor.createEmbeddedDocuments("ActiveEffect", [v.effectDefinition]));
-    effectRequests.forEach(([k, v]) => entity.unsetFlag('inkpot-powerroll', k));
-  }
-
-  static cleanAddEffectRequests() {
-    const defaultCharacter = game.user.character;
-    if(!defaultCharacter) return;
-    Object.keys(defaultCharacter.flags['inkpot-powerroll'] || {})
-      .filter(k => !isNaN(k))
-      .forEach(k => defaultCharacter.unsetFlag('inkpot-powerroll', k));
+  static addEffectAsGM({gmId, sceneId, tokenId, effectDefinition}) {
+    if(game.user.id !== gmId) return;
+    const actor = game.scenes.get(sceneId).tokens.get(tokenId).actor;
+    actor.createEmbeddedDocuments("ActiveEffect", [effectDefinition]);
   }
 }
