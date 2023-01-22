@@ -90,7 +90,9 @@ export class Config {
   ];
 
   static RESOURCE = {
-    'Augment': {'name': 'Power'}
+    'Augment': {'name': 'Power'},
+    'Channel Divinity': {'name': 'Channel Divinity'},
+    'Power \\S Daily': {'name': 'Item Daily Uses'}
   };
 
   static EFFECT = {
