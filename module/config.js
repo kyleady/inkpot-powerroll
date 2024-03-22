@@ -103,14 +103,15 @@ export class Config {
     '(?:until|)\\s*(?:the|)\\s*start\\s*of\\s*.*\\s*next\\s*turn': {'durationType': 'startOfUserTurn', 'altDurationType': 'startOfTargetTurn', 'endsOnInit': 'TRUE'},
   };
 
+  //Before calling check the current system version as the namespace changes in 0.4.44 to remove the word BETA
   static DURATION_LABEL = {
-    'saveEnd': "DND4EBETA.DurationSaveEnd",
-    'endOfEncounter': "DND4EBETA.DurationEndOfEnc",
-    'endOfDay': "DND4EBETA.DurationEndOfDay",
-    'endOfUserTurn': "DND4EBETA.DurationEndOfUserTurn",
-    'endOfTargetTurn': "DND4EBETA.DurationEndOfTargetTurnSimp",
-    'startOfUserTurn': "DND4EBETA.DurationStartOfUserTurn",
-    'startOfTargetTurn': "DND4EBETA.DurationStartOfTargetTurnSimp"
+    'saveEnd': "DurationSaveEnd",
+    'endOfEncounter': "DurationEndOfEnc",
+    'endOfDay': "DurationEndOfDay",
+    'endOfUserTurn': "DurationEndOfUserTurn",
+    'endOfTargetTurn': "DurationEndOfTargetTurnSimp",
+    'startOfUserTurn': "DurationStartOfUserTurn",
+    'startOfTargetTurn': "DurationStartOfTargetTurnSimp"
   };
 
   static COMMON_EFFECTS = {

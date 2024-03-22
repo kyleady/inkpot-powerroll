@@ -85,7 +85,7 @@ export class PowerRollEffect4e {
         "duration.startRound": startRound,
         "duration.startTime": 0,
         "duration.startTurn": startTurn,
-        "duration.label": game.i18n.localize(Config.DURATION_LABEL[durationType]),
+        "duration.label": game.i18n.localize(isNewerVersion(game.system.version, "0.4.43") ? "DND4E." : "DND4EBETA." + Config.DURATION_LABEL[durationType]),
         "disabled": false,
         "flags.dnd4e.effectData.durationType": durationType,
         "flags.dnd4e.effectData.startTurnInit": startTurnInit,
