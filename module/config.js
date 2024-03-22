@@ -104,13 +104,13 @@ export class Config {
   };
 
   static DURATION_LABEL = {
-    'saveEnd': "DND4EBETA.DurationSaveEnd",
-    'endOfEncounter': "DND4EBETA.DurationEndOfEnc",
-    'endOfDay': "DND4EBETA.DurationEndOfDay",
-    'endOfUserTurn': "DND4EBETA.DurationEndOfUserTurn",
-    'endOfTargetTurn': "DND4EBETA.DurationEndOfTargetTurnSimp",
-    'startOfUserTurn': "DND4EBETA.DurationStartOfUserTurn",
-    'startOfTargetTurn': "DND4EBETA.DurationStartOfTargetTurnSimp"
+    'saveEnd': "DND4E.DurationSaveEnd",
+    'endOfEncounter': "DND4E.DurationEndOfEnc",
+    'endOfDay': "DND4E.DurationEndOfDay",
+    'endOfUserTurn': "DND4E.DurationEndOfUserTurn",
+    'endOfTargetTurn': "DND4E.DurationEndOfTargetTurnSimp",
+    'startOfUserTurn': "DND4E.DurationStartOfUserTurn",
+    'startOfTargetTurn': "DND4E.DurationStartOfTargetTurnSimp"
   };
 
   static COMMON_EFFECTS = {
