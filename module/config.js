@@ -103,23 +103,15 @@ export class Config {
     '(?:until|)\\s*(?:the|)\\s*start\\s*of\\s*.*\\s*next\\s*turn': {'durationType': 'startOfUserTurn', 'altDurationType': 'startOfTargetTurn', 'endsOnInit': 'TRUE'},
   };
 
-  //Check the current system version as the namespace changes in 0.4.44 to remove the word BETA
-  static DURATION_LABEL = isNewerVersion(game.system.version, "0.4.43") ? {
-    'saveEnd': "DND4E.DurationSaveEnd",
-    'endOfEncounter': "DND4E.DurationEndOfEnc",
-    'endOfDay': "DND4E.DurationEndOfDay",
-    'endOfUserTurn': "DND4E.DurationEndOfUserTurn",
-    'endOfTargetTurn': "DND4E.DurationEndOfTargetTurnSimp",
-    'startOfUserTurn': "DND4E.DurationStartOfUserTurn",
-    'startOfTargetTurn': "DND4E.DurationStartOfTargetTurnSimp"
-  } : {
-    'saveEnd': "DND4EBETA.DurationSaveEnd",
-    'endOfEncounter': "DND4EBETA.DurationEndOfEnc",
-    'endOfDay': "DND4EBETA.DurationEndOfDay",
-    'endOfUserTurn': "DND4EBETA.DurationEndOfUserTurn",
-    'endOfTargetTurn': "DND4EBETA.DurationEndOfTargetTurnSimp",
-    'startOfUserTurn': "DND4EBETA.DurationStartOfUserTurn",
-    'startOfTargetTurn': "DND4EBETA.DurationStartOfTargetTurnSimp"
+  //Before calling check the current system version as the namespace changes in 0.4.44 to remove the word BETA
+  static DURATION_LABEL = {
+    'saveEnd': "DurationSaveEnd",
+    'endOfEncounter': "DurationEndOfEnc",
+    'endOfDay': "DurationEndOfDay",
+    'endOfUserTurn': "DurationEndOfUserTurn",
+    'endOfTargetTurn': "DurationEndOfTargetTurnSimp",
+    'startOfUserTurn': "DurationStartOfUserTurn",
+    'startOfTargetTurn': "DurationStartOfTargetTurnSimp"
   };
 
   static COMMON_EFFECTS = {
