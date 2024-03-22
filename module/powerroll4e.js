@@ -79,7 +79,7 @@ export class PowerRoll4e {
     if (!inputActor) {
       actors = canvas.tokens.controlled.map(x => x.actor);
       if (!actors.length) {
-        actors = [new game.dnd4eBeta.entities.Actor4e({'name': 'PowerRoll', 'type': 'NPC'})];
+        actors = [new game.dnd4e.entities.Actor4e({'name': 'PowerRoll', 'type': 'NPC'})];
         emptyActor = true;
       }
     } else {
@@ -113,7 +113,7 @@ export class PowerRoll4e {
 
     const dataset = button.dataset;
     for (let actor of actors) {
-      const item = new game.dnd4eBeta.entities.Item4e(itemData, {'parent': actor});
+      const item = new game.dnd4e.entities.Item4e(itemData, {'parent': actor});
       if ( action === "attack" ) await item.rollAttack({event});
       else if ( action === "damage" ) await item.rollDamage({event});
       else if ( action === "resource" ) PowerRollResource4e._spendResource(actor, dataset, emptyActor);
