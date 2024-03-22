@@ -11,7 +11,7 @@ Hooks.once('init', async function() {
     html.on('click', 'a.power-roll', event => {
       const button = event.currentTarget;
       const card = button.closest(".chat-card");
-      const actor = card ? game.dnd4eBeta.entities.Item4e._getChatCardActor(card) : undefined;
+      const actor = card ? game.dnd4e.entities.Item4e._getChatCardActor(card) : undefined;
       const item = actor ? actor.items.get(card.dataset.itemId) : undefined;
       PowerRoll4e.onPowerRoll(event, actor, item, item || actor);
     });
