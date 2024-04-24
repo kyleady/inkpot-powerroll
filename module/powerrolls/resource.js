@@ -3,14 +3,15 @@ import { Config } from '../config.js';
 export class PowerRollResource4e {
   static getMatch(withoutBrackets) {
     const resources = `(?<resourceTxt>${Object.keys(Config.RESOURCE).join('|')})`;
-    const resourceRgx = new RegExp(`^\\s*${resources}\\s*(?<digitTxt>\\d*)\\s*$`, 'i');
+    const resourceRgx = new RegExp(`^\\s*${resources}\\s*\\(?(?<digitTxt>\\d*)\\)?\\s*$`, 'i');
     return withoutBrackets.match(resourceRgx);
   }
 
   static _createPowerRollResource(withoutBrackets, {resourceTxt, digitTxt}, replacementTxt) {
     digitTxt = digitTxt || '1';
     const resourceKey = Object.keys(Config.RESOURCE).filter(rgxKey => resourceTxt.match(new RegExp(`^${rgxKey}$`, 'i')))[0];
-    const resource = Config.RESOURCE[resourceKey].name;
+    const knownResource = Config.RESOURCE[resourceKey].name;
+    const resource = knownResource == Config.TAGS.CUSTOM ? PowerRollResource4e.getCustomResource(resourceTxt) : knownResource;
     const amount = Number(digitTxt);
 
     const a = document.createElement('a');
@@ -22,6 +23,11 @@ export class PowerRollResource4e {
     a.innerHTML = '<i class="fas fa-arrow-alt-circle-right"></i>';
     a.appendChild(document.createTextNode(replacementTxt || withoutBrackets));
     return a;
+  }
+
+  static getCustomResource(resourceTxt) {
+    const matches = /(?:"|“)(.*)(?:"|”)/.exec(resourceTxt);
+    return matches[1]
   }
 
   static _spendResource(actor, dataset, emptyActor) {
