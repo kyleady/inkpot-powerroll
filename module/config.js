@@ -7,7 +7,13 @@ const PARSING_TYPES = {
 
 const POSSESSIVE_THIRD = '(?:their|his|her|its|his\\s*or\\s*her|her\\s*or\\s*his)';
 
+const CUSTOM_TAG = '_CUSTOM';
+
 export class Config {
+  static TAGS = {
+    'CUSTOM': CUSTOM_TAG
+  };
+
   static TYPES = PARSING_TYPES;
 
   static DEFENSE = {
@@ -92,7 +98,8 @@ export class Config {
   static RESOURCE = {
     'Augment': {'name': 'Power'},
     'Channel Divinity': {'name': 'Channel Divinity'},
-    'Power \\S Daily': {'name': 'Item Daily Uses'}
+    'Power \\S Daily': {'name': 'Item Daily Uses'},
+    'expend\\s+a?n?\\s*(?:"|“).*(?:"|”)\\s+charge\\(?s?\\)?': {'name': CUSTOM_TAG}
   };
 
   static EFFECT = {
